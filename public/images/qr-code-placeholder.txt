@@ -1,0 +1,15 @@
+QR Code Placeholder for Swaad-E-Sehat
+
+Instructions:
+1. Generate a QR code for your UPI ID: swaad-e-sehat@paytm
+2. Save it as: qr-code-swaad-e-sehat.png
+3. Place it in: /public/images/ directory
+4. The QR code should be 200x200 pixels for best display
+
+You can generate QR codes using:
+- Google Pay Business
+- PhonePe for Business
+- Paytm for Business
+- Any online QR generator
+
+The QR code will be displayed in the payment modal when customers choose QR payment.
