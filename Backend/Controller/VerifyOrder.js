@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const crypto = require("crypto");
 const pool = require("../Config/db");
 const userDashAuth = require("../Middleware/userDashAuth");
 const { sendMail } = require("../mail/mailWorker"); // Import with destructuring
