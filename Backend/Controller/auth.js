@@ -22,7 +22,7 @@ router.post('/register', async (req, res) => {
       const sql = `INSERT INTO users (name, email, mobile, password, ip) 
                  VALUES (?, ?, ?, ?, ?)`;
 
-    await pool.query(sql, [name, email, mobile, hashedPassword, userIp]);
+    const [result] = await pool.query(sql, [name, email, mobile, hashedPassword, userIp]);
 
     await sendMail({
         to: email,
@@ -65,7 +65,7 @@ router.post("/login", async (req, res) => {
       if (diff > 24) sendSecurityMail = true;
     }
 
-    await pool.query(
+    const [updateResult] = await pool.query(
       "UPDATE users SET last_login_at = NOW(), last_ip = ?, session = ? WHERE id = ?",
       [ip, sessionToken, u.id]
     );
@@ -87,6 +87,7 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });

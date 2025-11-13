@@ -11,8 +11,13 @@ const pool = mysql.createPool({
     queueLimit: 0
   });
 
-  pool.on('connection', (connection) => {
-        console.log('New database connection established with ID:', connection.threadId);
+  pool.getConnection()
+    .then(connection => {
+        console.log('✅ Database connected successfully with ID:', connection.threadId);
+        connection.release();
+    })
+    .catch(err => {
+        console.error('❌ Database connection failed:', err.message);
     });
 
 module.exports = pool;
