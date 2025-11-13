@@ -53,7 +53,7 @@ router.post("/api/orders/create", UserDashAuth, async (req, res) => {
         customerInfo.state,
         customerInfo.pincode
       ];
-      await connection.query(ordersQuery, orderValues);
+      const [orderResult] = await connection.query(ordersQuery, orderValues);
     } catch (err1) {
       console.error("--- ERROR IN 'INSERT INTO orders' ---", err1);
       throw err1; 
@@ -63,7 +63,7 @@ router.post("/api/orders/create", UserDashAuth, async (req, res) => {
     try {
       for (let item of items) {
         // We use the new schema, including `product_id`
-        await connection.query(
+        const [itemResult] = await connection.query(
           `INSERT INTO order_items (order_id, product_id, product_name, price, quantity, variant)
            VALUES (?, ?, ?, ?, ?, ?)`,
           [
@@ -138,7 +138,7 @@ router.post("/api/orders/create", UserDashAuth, async (req, res) => {
     }
 
     // Log the payment link
-    await pool.query(
+    const [logResult] = await pool.query(
       `INSERT INTO payment_logs (order_id, payment_url, txn_ref_id)
        VALUES (?, ?, ?)`,
       [orderId, pgData.data.paymentUrl, pgData.data.txn_ref_id || null]

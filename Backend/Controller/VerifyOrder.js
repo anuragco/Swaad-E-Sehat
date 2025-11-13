@@ -39,7 +39,7 @@ router.get('/verify-order/:orderId', userDashAuth, async (req, res) => {
     else if (txnStatus === "FAILED") newStatus = "failed";
 
     // Update database
-    await pool.query(
+    const [updateResult] = await pool.query(
       "UPDATE orders SET payment_status = ? WHERE id = ?",
       [newStatus, orderId]
     );
