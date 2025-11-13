@@ -3,7 +3,6 @@ const pool = require('../Config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { sendMail } = require('../mail/mailWorker');
-const {v4: uuidv4 }= require('uuid')
 
 
 router.post('/register', async (req, res) => {
