@@ -136,10 +136,10 @@ async function sendOrderConfirmationEmails(orderId) {
       o.cust_first_name, 
       o.total_amount,
       o.created_at,
-      o.shipping_address,
-      o.shipping_city,
-      o.shipping_state,
-      o.shipping_pincode
+      o.address,
+      o.city,
+      o.state,
+      o.pincode
     FROM orders o 
     WHERE o.id = ?`,
     [orderId]
@@ -152,19 +152,20 @@ async function sendOrderConfirmationEmails(orderId) {
   const order = orderRows[0];
   
   const [itemRows] = await pool.query(
-    `SELECT 
-      oi.quantity,
-      oi.price,
-      p.name as product_name
-    FROM order_items oi
-    JOIN products p ON oi.product_id = p.id
-    WHERE oi.order_id = ?`,
-    [orderId]
-  );
-  
-  const itemsList = itemRows.map(item => 
-    `<li>${item.product_name} x ${item.quantity} - ₹${item.price}</li>`
-  ).join('');
+  `SELECT 
+    oi.quantity,
+    oi.price,
+    oi.variant,
+    p.name as product_name
+  FROM order_items oi
+  JOIN products p ON oi.product_id = p.id
+  WHERE oi.order_id = ?`,
+  [orderId]
+);
+
+const itemsList = itemRows.map(item => 
+  `<li>${item.product_name}${item.variant ? ` (${item.variant})` : ''} x ${item.quantity} - ₹${item.price}</li>`
+).join('');
 
   await sendMail({
     to: order.cust_email,
