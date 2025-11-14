@@ -673,7 +673,7 @@ const PrivacyPolicy = () => {
                   → Return & Refund Policy
                 </Link>
                 <Link 
-                  to="/shipping-policy"
+                  to="/shipping"
                   className="block text-amber-700 hover:text-amber-800 font-semibold hover:underline"
                 >
                   → Shipping Policy
