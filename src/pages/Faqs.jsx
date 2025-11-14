@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiHelpCircle,FiAlertCircle , FiChevronDown, FiPackage, FiTruck, FiCreditCard, FiShield, FiMail, FiPhone } from 'react-icons/fi';
+import { FiHelpCircle,FiAlertCircle , FiChevronDown, FiPackage, FiTruck, FiShield, FiMail } from 'react-icons/fi';
 
 const FAQ = () => {
   const [expandedId, setExpandedId] = useState(null);
