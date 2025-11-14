@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiLock,FiClock , FiShield, FiEye, FiDatabase, FiMail, FiCreditCard, FiUser, FiMapPin, FiPhone, FiTruck, FiAlertCircle, FiCheck } from 'react-icons/fi';
+import { FiLock,FiClock , FiShield, FiEye, FiDatabase, FiMail, FiCreditCard, FiUser, FiTruck, FiAlertCircle, FiCheck } from 'react-icons/fi';
 
 const PrivacyPolicy = () => {
   return (
