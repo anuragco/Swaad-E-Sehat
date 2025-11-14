@@ -12,8 +12,14 @@ const app = express();
 const PORT = process.env.EXPRESS_PORT || 5000;
 
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'https://www.swaadesehat.in',
+    origin: [
+        'https://www.swaadesehat.in',
+        'https://swaadesehat.in,
+        'http://localhost:3000', // for local development
+    ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     optionsSuccessStatus: 200
 };
 
