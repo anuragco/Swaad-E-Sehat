@@ -42,11 +42,11 @@ router.get("/api/products", async (req, res) => {
       params.push(category);
     }
     if (search) {
-      if (search.length > 100) {
-        return res.status(400).json({ success: false, message: "Search term too long" });
-      }
       // Escape % and _ for LIKE query
       const sanitizedSearch = search.replace(/[%_]/g, '\\$&');
+      if (sanitizedSearch.length > 100) {
+        return res.status(400).json({ success: false, message: "Search term too long" });
+      }
       const searchTerm = `%${sanitizedSearch}%`;
       whereClauses.push(
         `(p.name LIKE ? ESCAPE '\\' OR p.detailedDescription LIKE ? ESCAPE '\\' OR p.tags LIKE ? ESCAPE '\\')`
