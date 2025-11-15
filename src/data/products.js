@@ -19,8 +19,7 @@ export const getProductBySlug = async (slug) => {
 
 
 export const getProductById = (id) => {
-  console.warn("getProductById is deprecated, use getProductBySlug");
-  return null;
+  throw new Error("getProductById is deprecated. Please use getProductBySlug instead.");
 };
 
 
