@@ -33,7 +33,41 @@ const corsOptions = {
 app.use(bodyParser.json());
 app.use(cors(corsOptions));
 
-app.use(express.static('public'));
+// Security headers middleware
+app.use((req, res, next) => {
+    // Content Security Policy
+    res.setHeader(
+        "Content-Security-Policy",
+        "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://api.swaadesehat.in;"
+    );
+    
+    // HTTP Strict Transport Security
+    res.setHeader(
+        "Strict-Transport-Security",
+        "max-age=63072000; includeSubDomains; preload"
+    );
+    
+    // Prevent clickjacking
+    res.setHeader("X-Frame-Options", "DENY");
+    
+    // Cross-Origin-Opener-Policy
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    
+    // X-Content-Type-Options
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    
+    // XSS Protection
+    res.setHeader("X-XSS-Protection", "1; mode=block");
+    
+    next();
+});
+
+// Serve static files with caching
+app.use(express.static('public', {
+    maxAge: '1y',
+    etag: true,
+    lastModified: true
+}));
 
 app.get('/', (req, res) => {
     res.send('Hello World!');

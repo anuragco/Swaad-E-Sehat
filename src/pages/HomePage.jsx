@@ -73,14 +73,16 @@ const HomePage = () => {
                 <Link 
                   to="/products" 
                   className="inline-flex items-center justify-center gap-2 px-8 py-3 font-semibold text-white bg-amber-500 rounded-lg shadow-md hover:bg-amber-600 transition-all duration-300 transform hover:-translate-y-0.5"
+                  aria-label="Shop natural sweets and dry fruits"
                 >
                   Shop Now <FiArrowRight className="w-5 h-5" />
                 </Link>
                 <Link 
                   to="/about" 
                   className="inline-flex items-center justify-center px-8 py-3 font-semibold text-slate-700 bg-white rounded-lg shadow-md hover:bg-slate-100 transition-all duration-300 border border-slate-200"
+                  aria-label="Learn more about our natural sweets and dry fruits"
                 >
-                  Learn More
+                  Learn More About Us
                 </Link>
               </div>
             </div>
@@ -91,6 +93,7 @@ const HomePage = () => {
                 <img 
                   src="/images/2J1A5029.JPG" 
                   alt="Premium Natural Sweets & Dry Fruits"
+                  fetchpriority="high"
                   className="rounded-xl shadow-2xl max-w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div 
@@ -182,6 +185,7 @@ const HomePage = () => {
                 <img 
                   src="/images/MUSCLELADDU.jpg" 
                   alt="Dry Fruit Khajur Pak"
+                  loading="lazy"
                   className="rounded-xl shadow-2xl max-w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div 
@@ -218,6 +222,7 @@ const HomePage = () => {
                 <Link 
                   to="/product/dry-fruit-laddu" // Changed slug to be more accurate
                   className="inline-flex items-center justify-center gap-2 px-8 py-3 font-semibold text-white bg-amber-500 rounded-lg shadow-md hover:bg-amber-600 transition-all duration-300 transform hover:-translate-y-0.5"
+                  aria-label="Try Dry Fruit Khajur Pak now"
                 >
                   Try Now <FiArrowRight className="w-5 h-5" />
                 </Link>
@@ -271,12 +276,14 @@ const HomePage = () => {
               <Link 
                 to="/products" 
                 className="inline-flex items-center justify-center gap-2 px-8 py-3 font-semibold text-amber-700 bg-white rounded-lg shadow-md hover:bg-slate-100 transition-all duration-300 transform hover:-translate-y-0.5"
+                aria-label="Browse all natural sweets and dry fruits"
               >
                 Shop Now <FiArrowRight className="w-5 h-5" />
               </Link>
               <Link 
                 to="/about" 
                 className="inline-flex items-center justify-center px-8 py-3 font-semibold text-white border-2 border-white rounded-lg hover:bg-white hover:text-amber-700 transition-all duration-300"
+                aria-label="Learn about our story and values"
               >
                 Learn About Us
               </Link>

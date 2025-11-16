@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and checkout pages
+Disallow: /admin/
+Disallow: /checkout/
+Disallow: /cart/
+
+Sitemap: https://www.swaadesehat.in/sitemap.xml
