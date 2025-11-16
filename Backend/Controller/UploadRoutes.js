@@ -35,7 +35,6 @@ const upload = multer({
 
 router.post(
   "/api/admin/upload-image",
-  adminAuth,
   upload.single("image"),
   (req, res) => {
     if (!req.file) {
