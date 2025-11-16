@@ -51,8 +51,9 @@ const Header = () => {
           >
             <img 
               src="/images/sticker.jpg" 
-              alt="Swaad-E-Sehat" 
-              className="w-11 h-11 object-contain rounded-full" 
+              alt="Swaad-E-Sehat logo - Natural homemade sweets and dry fruits" 
+              className="w-11 h-11 object-contain rounded-full"
+              loading="eager"
             />
             <span className="font-bold text-xl text-slate-900 hidden sm:inline">
               Swaad-E-Sehat
