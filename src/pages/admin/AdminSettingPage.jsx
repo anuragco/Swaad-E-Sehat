@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiSave, FiToggle2, FiBell, FiLock, FiUser, FiGlobe, FiDollarSign } from 'react-icons/fi';
+import { FiSave, FiBell, FiLock, FiGlobe, FiDollarSign } from 'react-icons/fi';
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
