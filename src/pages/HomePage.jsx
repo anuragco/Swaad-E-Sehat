@@ -91,6 +91,7 @@ const HomePage = () => {
                 <img 
                   src="/images/2J1A5029.JPG" 
                   alt="Premium Natural Sweets & Dry Fruits"
+                  fetchpriority="high"
                   className="rounded-xl shadow-2xl max-w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div 
@@ -182,6 +183,7 @@ const HomePage = () => {
                 <img 
                   src="/images/MUSCLELADDU.jpg" 
                   alt="Dry Fruit Khajur Pak"
+                  loading="lazy"
                   className="rounded-xl shadow-2xl max-w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div 
