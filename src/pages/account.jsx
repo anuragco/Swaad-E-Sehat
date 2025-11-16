@@ -55,6 +55,7 @@ const Account = () => {
 
       if (response.ok) {
         localStorage.setItem('authToken', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         setSuccess('Login successful! Welcome back.');
         setLoginData({ email: '', password: '' });
         setTimeout(() => { window.location.href = '/user/dashboard'; }, 1000);
