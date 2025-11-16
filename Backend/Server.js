@@ -13,7 +13,7 @@ const adminProductRoutes = require('./Controller/AdminProductRoutes');
 const adminAuth = require('./Middleware/adminAuth.js');
 const adminDataRoutes = require('./Controller/AdminDataRoutes');
 const uploadRoutes = require('./Controller/UploadRoutes');
-const { initializeCleanupJob } = require('./job/ImageCleanupJob');
+// const { initializeCleanupJob } = require('./job/ImageCleanupJob');
 
 const app = express();
 const PORT = process.env.EXPRESS_PORT || 5000;
@@ -56,7 +56,7 @@ app.use(adminAuth, adminProductRoutes);
 app.use(adminAuth, adminDataRoutes);
 app.use(adminAuth, uploadRoutes);
 
-initializeCleanupJob();
+// initializeCleanupJob();
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
