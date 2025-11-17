@@ -51,7 +51,7 @@ router.post(
 
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       const filename = `image-${uniqueSuffix}.webp`;
-      const outputPath = path.join("public/uploads", filename);
+      const outputPath = path.join("Public/uploads", filename);
 
       // Ensure uploads directory exists
       await fs.mkdir("Public/uploads", { recursive: true });
