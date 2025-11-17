@@ -242,6 +242,21 @@ router.get('/payment/callback', async (req, res) => {
       return res.redirect(`${process.env.FRONTEND_URL}/order-confirmation?error=missing_order`);
     }
 
+    // Check if order already processed
+    const [orderCheck] = await pool.query(
+      "SELECT id, payment_status FROM orders WHERE id = ?",
+      [order]
+    );
+    
+    if (orderCheck.length === 0) {
+      return res.redirect(`${process.env.FRONTEND_URL}/order-confirmation?error=order_not_found`);
+    }
+    
+    // If already paid, just redirect without reprocessing
+    if (orderCheck[0].payment_status === 'paid') {
+      return res.redirect(`${process.env.FRONTEND_URL}/order-confirmation?orderId=${order}&status=success`);
+    }
+
     // Verify the payment status with the gateway
     const devRes = await axios.post(
       "https://connect.devcraftor.in/api/v2/partner/order/status",
