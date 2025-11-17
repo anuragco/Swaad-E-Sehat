@@ -39,7 +39,8 @@ const CheckoutPage = () => {
   const calculateSubtotal = () => items.reduce((total, item) => total + (item.price * item.quantity), 0);
   const subtotal = calculateSubtotal();
   const tax = subtotal * 0.18;
-  const total = subtotal ;
+  const shippingCost = subtotal > 500 ? 0 : 150;
+  const total = subtotal + shippingCost;
 
   useEffect(() => {
     if (items.length === 0 && !isProcessing && !isPolling) {
@@ -472,6 +473,7 @@ const CheckoutPage = () => {
               items={items} 
               subtotal={subtotal} 
               tax={tax} 
+              shippingCost={shippingCost}
               total={total}
               isProcessing={isProcessing}
               paymentButtonContent={paymentButtonContent}
@@ -535,7 +537,7 @@ const PaymentOption = ({ title, description, icon, value, currentValue, onChange
   );
 };
 
-const OrderSummary = ({ items, subtotal, tax, total, isProcessing, paymentButtonContent }) => (
+const OrderSummary = ({ items, subtotal, tax, shippingCost, total, isProcessing, paymentButtonContent }) => (
   <div className="bg-white rounded-xl shadow-md sticky top-28">
     <h3 className="text-2xl font-semibold p-6 border-b border-slate-200">
       Order Summary
@@ -565,7 +567,11 @@ const OrderSummary = ({ items, subtotal, tax, total, isProcessing, paymentButton
       </div> */}
       <div className="flex justify-between items-center text-slate-600">
         <span>Shipping</span>
-        <span className="font-medium text-green-600">FREE</span>
+        {shippingCost === 0 ? (
+          <span className="font-medium text-green-600">FREE</span>
+        ) : (
+          <span className="font-medium text-slate-800">₹{shippingCost.toFixed(2)}</span>
+        )}
       </div>
       <div className="border-t border-slate-200 my-3"></div>
       <div className="flex justify-between items-center text-xl font-bold text-slate-900">
