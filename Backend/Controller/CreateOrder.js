@@ -13,15 +13,57 @@ router.post("/api/orders/create", UserDashAuth, async (req, res) => {
   const paymentStatus = paymentMethod === "COD" ? "cod_pending" : "pending";
   const orderStatus = "pending"; 
 
-  // Calculate totals on the backend for security
-  const subtotal = items.reduce((total, item) => total + (item.price * item.quantity), 0);
-  const tax = subtotal * 0.18; // 18% GST
-  const totalAmount = subtotal + tax; 
-
   let connection;
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
+
+    // Validate prices and calculate totals using database prices
+    let validatedSubtotal = 0;
+    const validatedItems = [];
+    
+    for (let item of items) {
+      const variantIdentifier = item.variantName || item.variant || 'default';
+      
+      // Fetch actual product variant from database
+      const [variantRows] = await connection.query(
+        `SELECT price, stock, name FROM product_variants 
+         WHERE product_id = ? AND (variant_id_str = ? OR name = ?)`,
+        [item.id, variantIdentifier, variantIdentifier]
+      );
+      
+      if (variantRows.length === 0) {
+        throw new Error(`Product variant not found: ${item.name} - ${variantIdentifier}`);
+      }
+      
+      const dbVariant = variantRows[0];
+      
+      // Validate price matches database
+      if (Math.abs(parseFloat(item.price) - parseFloat(dbVariant.price)) > 0.01) {
+        throw new Error(`Price mismatch for ${item.name}: client sent ${item.price}, expected ${dbVariant.price}`);
+      }
+      
+      // Validate stock availability
+      if (dbVariant.stock < item.quantity) {
+        throw new Error(`Insufficient stock for ${item.name} - ${variantIdentifier}. Available: ${dbVariant.stock}, requested: ${item.quantity}`);
+      }
+      
+      // Add to validated items with database price
+      validatedItems.push({
+        product_id: item.id,
+        name: item.name,
+        price: parseFloat(dbVariant.price),
+        quantity: item.quantity,
+        variant: variantIdentifier
+      });
+      
+      validatedSubtotal += parseFloat(dbVariant.price) * item.quantity;
+    }
+    
+    // Calculate totals using validated database prices
+    const subtotal = validatedSubtotal;
+    const tax = subtotal * 0.18; // 18% GST
+    const totalAmount = subtotal + tax;
 
     // --- Block 1: Create the Order ---
     try {
@@ -59,20 +101,19 @@ router.post("/api/orders/create", UserDashAuth, async (req, res) => {
       throw err1; 
     }
 
-    // --- Block 2: Insert Order Items ---
+    // --- Block 2: Insert Order Items with Validated Data ---
     try {
-      for (let item of items) {
-        // We use the new schema, including `product_id`
+      for (let validatedItem of validatedItems) {
         const [itemResult] = await connection.query(
           `INSERT INTO order_items (order_id, product_id, product_name, price, quantity, variant)
            VALUES (?, ?, ?, ?, ?, ?)`,
           [
             orderId, 
-            item.id, // product_id
-            item.name, 
-            item.price, 
-            item.quantity, 
-            item.variantName || item.variant || 'default'
+            validatedItem.product_id,
+            validatedItem.name, 
+            validatedItem.price,
+            validatedItem.quantity, 
+            validatedItem.variant
           ]
         );
       }
