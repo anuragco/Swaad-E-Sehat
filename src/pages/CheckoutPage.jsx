@@ -10,7 +10,8 @@ import {
   FiArrowLeft,
   FiTruck,
   FiRefreshCw,
-  FiCheckCircle 
+  FiCheckCircle,
+  FiLoader
 } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
