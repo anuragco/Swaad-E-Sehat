@@ -47,7 +47,7 @@ router.post(
       }
 
       const optimizedImageBuffer = await sharp(req.file.buffer)
-        .resize(1600, 1600, { fit: "inside" })
+        .resize(1600, 1600, { fit: "inside", withoutEnlargement: true })
         .webp({ quality: 85 })
         .toBuffer();
 
