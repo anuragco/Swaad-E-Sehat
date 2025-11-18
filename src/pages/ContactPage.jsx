@@ -88,19 +88,19 @@ const ContactPage = () => {
               <ContactInfoItem
                 icon={<FiPhone className="w-6 h-6" />}
                 title="Phone"
-                content="+91 88499 78818" // ⚠️ Make sure this is your correct phone
-                href="tel:+918849978818"
+                content="+91 81780 63094"
+                href="tel:+918178063094"
               />
               <ContactInfoItem
                 icon={<FiMail className="w-6 h-6" />}
                 title="Email"
-                content="info@swaad-e-sehat.com" // ⚠️ Make sure this is your correct email
-                href="mailto:info@swaad-e-sehat.com"
+                content="brothersfoodie1@gmail.com"
+                href="mailto:brothersfoodie1@gmail.com"
               />
               <ContactInfoItem
                 icon={<FiMapPin className="w-6 h-6" />}
                 title="Address"
-                content="Manufacturing & Office Address, Delhi, India"
+                content="Gurgaon, Sector 8"
               />
             </div>
           </div>
