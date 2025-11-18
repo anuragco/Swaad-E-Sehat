@@ -37,8 +37,7 @@ const CartPage = () => {
 
   const subtotal = calculateSubtotal();
   const discount = calculateDiscount();
-  const tax = subtotal * 0.18; // 18% GST
-  const shippingCost = subtotal > 500 ? 0 : 150;
+  const shippingCost = subtotal >= 500 ? 0 : 150;
   const total = subtotal + shippingCost; 
 
   if (items.length === 0) {
@@ -91,7 +90,6 @@ const CartPage = () => {
             <OrderSummary 
               subtotal={subtotal}
               discount={discount}
-              tax={tax}
               shippingCost={shippingCost} 
               total={total}
               itemCount={getCartItemsCount()}
@@ -209,7 +207,7 @@ const CartItem = ({ item, onUpdate, onRemove }) => {
 };
 
 // --- Helper Component: Order Summary Card (UPDATED) ---
-const OrderSummary = ({ subtotal, discount, tax, shippingCost, total, itemCount }) => {
+const OrderSummary = ({ subtotal, discount, shippingCost, total, itemCount }) => {
   const isLoggedIn = !!localStorage.getItem('authToken');
   return (
     <div className="bg-white rounded-xl shadow-md sticky top-28">
