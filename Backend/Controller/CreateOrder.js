@@ -63,15 +63,15 @@ router.post("/api/orders/create", UserDashAuth, async (req, res) => {
     
     // Calculate totals using validated database prices
     const subtotal = validatedSubtotal;
-    const tax = subtotal * 0.18; // 18% GST
-    const totalAmount = subtotal + tax;
+    const shippingCharges = subtotal >= 500 ? 0 : 150;
+    const totalAmount = subtotal + shippingCharges;
 
     // --- Block 1: Create the Order ---
     try {
       const ordersQuery = `
         INSERT INTO orders (
           id, user_id, total_amount, payment_method, payment_status, order_status, 
-          subtotal, tax,
+          subtotal, shipping_charges,
           cust_first_name, cust_last_name, cust_email, cust_mobile, 
           address, city, state, pincode
         )
@@ -86,7 +86,7 @@ router.post("/api/orders/create", UserDashAuth, async (req, res) => {
         paymentStatus,
         orderStatus,
         subtotal,
-        tax,
+        shippingCharges,
         customerInfo.firstName,
         customerInfo.lastName,
         customerInfo.email,

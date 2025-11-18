@@ -89,7 +89,7 @@ const ProductDetail = () => {
       id: product.id,
       price: selectedVariant.price,
       originalPrice: selectedVariant.originalPrice,
-      variant: selectedVariant.id,
+      variant: selectedVariant.variant_id_str || selectedVariant.id,
       variantName: selectedVariant.name,
       image: productImages[0] || '/images/placeholder.jpg'
     };

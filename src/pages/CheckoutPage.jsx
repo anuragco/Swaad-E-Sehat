@@ -40,8 +40,7 @@ const CheckoutPage = () => {
 
   const calculateSubtotal = () => items.reduce((total, item) => total + (item.price * item.quantity), 0);
   const subtotal = calculateSubtotal();
-  const tax = subtotal * 0.18;
-  const shippingCost = subtotal > 500 ? 0 : 150;
+  const shippingCost = subtotal >= 500 ? 0 : 150;
   const total = subtotal + shippingCost;
 
   useEffect(() => {
@@ -474,7 +473,6 @@ const CheckoutPage = () => {
             <OrderSummary 
               items={items} 
               subtotal={subtotal} 
-              tax={tax} 
               shippingCost={shippingCost}
               total={total}
               isProcessing={isProcessing}
@@ -539,7 +537,7 @@ const PaymentOption = ({ title, description, icon, value, currentValue, onChange
   );
 };
 
-const OrderSummary = ({ items, subtotal, tax, shippingCost, total, isProcessing, paymentButtonContent }) => (
+const OrderSummary = ({ items, subtotal, shippingCost, total, isProcessing, paymentButtonContent }) => (
   <div className="bg-white rounded-xl shadow-md sticky top-28">
     <h3 className="text-2xl font-semibold p-6 border-b border-slate-200">
       Order Summary
