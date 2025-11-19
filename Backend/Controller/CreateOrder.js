@@ -18,6 +18,39 @@ router.post("/api/orders/create", UserDashAuth, async (req, res) => {
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
+    // Validate payment method against settings
+    const [settingsRows] = await connection.query(
+      `SELECT setting_key, setting_value 
+       FROM settings 
+       WHERE setting_key IN ('cod_enabled', 'online_payment_enabled')`
+    );
+
+    const paymentSettings = {
+      cod_enabled: false,
+      online_payment_enabled: true
+    };
+
+    settingsRows.forEach(row => {
+      paymentSettings[row.setting_key] = row.setting_value === 'true';
+    });
+
+    // Check if the requested payment method is enabled
+    if (paymentMethod === 'COD' && !paymentSettings.cod_enabled) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Cash on Delivery is currently not available'
+      });
+    }
+
+    if (paymentMethod !== 'COD' && !paymentSettings.online_payment_enabled) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Online Payment is currently not available'
+      });
+    }
+
     // Validate prices and calculate totals using database prices
     let validatedSubtotal = 0;
     const validatedItems = [];
