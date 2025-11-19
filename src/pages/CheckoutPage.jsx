@@ -36,9 +36,8 @@ const CheckoutPage = () => {
 
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [selectedAddressKey, setSelectedAddressKey] = useState('new'); // 'new' or array index
+  const [selectedAddressKey, setSelectedAddressKey] = useState('new');
   
-  // Payment settings state
   const [paymentSettings, setPaymentSettings] = useState({
     cod_enabled: false,
     online_payment_enabled: true
@@ -57,7 +56,6 @@ const CheckoutPage = () => {
     }
   }, [items, navigate, isProcessing]);
 
-  // Fetch payment settings
   useEffect(() => {
     const fetchPaymentSettings = async () => {
       try {
@@ -65,7 +63,6 @@ const CheckoutPage = () => {
         if (response.data.success) {
           setPaymentSettings(response.data.data);
           
-          // Set default payment method to the first enabled option
           if (response.data.data.online_payment_enabled) {
             setFormData(prev => ({ ...prev, paymentMethod: 'online' }));
           } else if (response.data.data.cod_enabled) {
@@ -74,7 +71,6 @@ const CheckoutPage = () => {
         }
       } catch (err) {
         console.error("Failed to fetch payment settings:", err);
-        // Use defaults if fetch fails
       } finally {
         setIsLoadingSettings(false);
       }

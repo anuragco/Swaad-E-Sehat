@@ -4,10 +4,9 @@ const pool = require('../Config/db');
 const UserDashAuth = require('../Middleware/userDashAuth.js');
 const rateLimit = require('express-rate-limit');
 
-// Rate limiter for order creation
 const createOrderLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 order creation attempts per 15 minutes
+  windowMs: 15 * 60 * 1000,
+  max: 10,
   message: 'Too many order creation attempts from this IP, please try again later.'
 });
 
@@ -26,7 +25,6 @@ router.post("/api/orders/create", UserDashAuth, createOrderLimiter, async (req, 
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
-    // Validate payment method against settings
     const [settingsRows] = await connection.query(
       `SELECT setting_key, setting_value 
        FROM settings 
@@ -42,7 +40,6 @@ router.post("/api/orders/create", UserDashAuth, createOrderLimiter, async (req, 
       paymentSettings[row.setting_key] = row.setting_value === 'true';
     });
 
-    // Check if the requested payment method is enabled
     if (paymentMethod === 'COD' && !paymentSettings.cod_enabled) {
       await connection.rollback();
       return res.status(400).json({

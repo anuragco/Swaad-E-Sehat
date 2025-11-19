@@ -32,7 +32,6 @@ const AdminSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch payment settings on component mount
   useEffect(() => {
     const fetchPaymentSettings = async () => {
       try {
@@ -63,7 +62,6 @@ const AdminSettings = () => {
   };
 
   const handleSave = async () => {
-    // Validate that at least one payment method is enabled
     if (!paymentSettings.cod_enabled && !paymentSettings.online_payment_enabled) {
       toast.error('At least one payment method must be enabled!');
       return;
