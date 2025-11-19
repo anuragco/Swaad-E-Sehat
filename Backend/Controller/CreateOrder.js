@@ -2,8 +2,16 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../Config/db'); 
 const UserDashAuth = require('../Middleware/userDashAuth.js');
+const rateLimit = require('express-rate-limit');
 
-router.post("/api/orders/create", UserDashAuth, async (req, res) => {
+// Rate limiter for order creation
+const createOrderLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 order creation attempts per 15 minutes
+  message: 'Too many order creation attempts from this IP, please try again later.'
+});
+
+router.post("/api/orders/create", UserDashAuth, createOrderLimiter, async (req, res) => {
   const { amount, customerInfo, items, paymentMethod } = req.body;
   
   // This is now working thanks to your middleware!
