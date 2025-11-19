@@ -4,17 +4,6 @@ A fully responsive, professional e-commerce website for Swaad-E-Sehat, specializ
 
 ## 🌟 Features
 
-### 🆕 Dynamic Payment Options (New!)
-
-- **Admin Control Panel**: Toggle payment methods without code deployment
-- **Database-Driven Settings**: Payment methods controlled via settings table
-- **Visual Indicators**: Disabled payment options show clear ❌ icons
-- **Backend Validation**: Server-side verification prevents bypassing disabled methods
-- **Security Features**: Rate limiting and authentication on all payment endpoints
-- **Flexible Configuration**: Enable/disable COD and Online Payment independently
-- **User-Friendly UI**: Greyed-out disabled options with "Not Available" messaging
-- **Documentation**: Comprehensive guides (see FEATURE_DOCUMENTATION.md, TESTING.md)
-
 ### 🏠 Homepage
 
 - **Hero Banner**: Showcases natural and homemade sweets with compelling visuals
@@ -48,16 +37,10 @@ A fully responsive, professional e-commerce website for Swaad-E-Sehat, specializ
 
 - **Secure Checkout**: Comprehensive form validation
 - **Shipping Information**: Complete address collection
-- **Dynamic Payment Options**: Admin-controlled payment method availability
-  - **Online Payment**: Cards, UPI, Net Banking, Digital Wallets (Razorpay)
-  - **Cash on Delivery**: Configurable COD option with visual status indicators
-- **Payment Method Controls**: Database-driven enable/disable settings
-- **Disabled Method Indicators**: Clear visual feedback (❌) for unavailable methods
-- **Payment Gateway**: Razorpay integration for secure online payments
+- **Payment Gateway**: Razorpay integration for secure payments
 - **Order Summary**: Detailed order review before payment
+- **Payment Methods**: Cards, UPI, Net Banking, Digital Wallets
 - **Order Confirmation**: Success page with order details and tracking
-- **Backend Validation**: Prevents malicious payment method requests
-- **Rate Limiting**: Protected against abuse with request limits
 
 ### 📱 Product Detail Page
 
@@ -125,15 +108,6 @@ A fully responsive, professional e-commerce website for Swaad-E-Sehat, specializ
 - **React Icons**: Beautiful icon library
 - **React Toastify**: User notifications
 
-### Backend
-
-- **Node.js**: Server-side runtime
-- **Express**: Web application framework
-- **MySQL**: Relational database
-- **express-rate-limit**: Rate limiting middleware
-- **bcrypt**: Password hashing
-- **jsonwebtoken**: JWT authentication
-
 ### Styling
 
 - **CSS3**: Modern CSS with variables
@@ -145,12 +119,9 @@ A fully responsive, professional e-commerce website for Swaad-E-Sehat, specializ
 ### Payment Integration
 
 - **Razorpay**: Secure payment processing
-- **DevCraftor**: Alternative payment gateway
-- **Dynamic Payment Methods**: Database-controlled availability
-- **Multiple Payment Options**: Cards, UPI, Net Banking, Cash on Delivery
-- **Order Management**: Complete order lifecycle tracking
-- **Security**: PCI DSS compliant, rate-limited endpoints
-- **Backend Validation**: Payment method verification before order processing
+- **Multiple Payment Methods**: Cards, UPI, Net Banking
+- **Order Management**: Complete order lifecycle
+- **Security**: PCI DSS compliant
 
 ### Development Tools
 
@@ -179,54 +150,28 @@ A fully responsive, professional e-commerce website for Swaad-E-Sehat, specializ
 2. **Install dependencies**
 
    ```bash
-   # Install frontend dependencies
    npm install
-   
-   # Install backend dependencies
-   cd Backend
-   npm install
-   cd ..
    ```
 
-3. **Set up the database**
-
-   ```bash
-   # Run the settings migration
-   mysql -u your_username -p your_database < Backend/migrations/create_settings_table.sql
-   ```
-
-4. **Set up environment variables**
+3. **Set up environment variables**
 
    ```bash
    cp .env.example .env
    ```
 
-   Add your Razorpay keys and database credentials:
+   Add your Razorpay keys:
 
    ```
    REACT_APP_RAZORPAY_KEY_ID=your_razorpay_key_id
-   
-   # Backend environment (Backend/.env)
-   DB_HOST=localhost
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   DB_NAME=your_db_name
-   DEVCRAFTER_KEY=your_payment_gateway_key
-   DEVCRAFTER_SECRET=your_payment_gateway_secret
    ```
 
-5. **Start the development servers**
+4. **Start the development server**
 
    ```bash
-   # Terminal 1 - Start backend
-   cd Backend
-   npm start
-   
-   # Terminal 2 - Start frontend
    npm start
    ```
 
-6. **Open your browser**
+5. **Open your browser**
    Navigate to `http://localhost:3000`
 
 ### Building for Production
@@ -240,44 +185,27 @@ This creates an optimized production build in the `build` folder.
 ## 📁 Project Structure
 
 ```
-swaad-e-sehat/
-├── Backend/                    # Backend server
-│   ├── Controller/            # API route controllers
-│   │   ├── PaymentSettings.js # Payment settings API (NEW)
-│   │   ├── CreateOrder.js     # Order creation (UPDATED)
-│   │   └── ...
-│   ├── Middleware/            # Authentication & validation
-│   ├── Config/                # Database configuration
-│   └── migrations/            # Database migrations (NEW)
-│       ├── create_settings_table.sql
-│       └── README.md
-├── src/                       # Frontend source
-│   ├── components/            # Reusable components
-│   │   ├── Header.jsx        # Navigation header
-│   │   ├── Footer.jsx        # Site footer
-│   │   └── ProductCard.jsx   # Product display component
-│   ├── pages/                # Page components
-│   │   ├── CheckoutPage.jsx  # Checkout process (UPDATED)
-│   │   ├── admin/
-│   │   │   └── AdminSettingPage.jsx # Admin settings (UPDATED)
-│   │   └── ...
-│   ├── context/              # React Context
-│   │   └── CartContext.jsx   # Shopping cart state
-│   └── ...
-├── FEATURE_DOCUMENTATION.md  # Technical docs (NEW)
-├── TESTING.md                # Testing guide (NEW)
-├── IMPLEMENTATION_SUMMARY.md # Implementation overview (NEW)
-└── README.md                 # This file
+src/
+├── components/          # Reusable components
+│   ├── Header.jsx      # Navigation header
+│   ├── Footer.jsx      # Site footer
+│   └── ProductCard.jsx # Product display component
+├── pages/              # Page components
+│   ├── HomePage.jsx    # Landing page
+│   ├── ProductsPage.jsx # Product listing
+│   ├── ProductDetail.jsx # Product details
+│   ├── CartPage.jsx    # Shopping cart
+│   ├── CheckoutPage.jsx # Checkout process
+│   ├── OrderConfirmation.jsx # Order success
+│   └── AboutPage.jsx   # About us
+├── context/            # React Context
+│   └── CartContext.jsx # Shopping cart state
+├── data/               # Data files
+│   └── products.js     # Product data and utilities
+├── App.jsx             # Main app component
+├── App.css             # Global styles
+└── index.jsx           # App entry point
 ```
-
-## 📚 Documentation
-
-This project includes comprehensive documentation:
-
-- **[FEATURE_DOCUMENTATION.md](FEATURE_DOCUMENTATION.md)**: Complete technical documentation for the dynamic payment options feature, including architecture, API docs, and troubleshooting
-- **[TESTING.md](TESTING.md)**: Comprehensive testing guide with 11 detailed test cases and security considerations
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)**: Visual implementation overview with flow diagrams and deployment guide
-- **[Backend/migrations/README.md](Backend/migrations/README.md)**: Database migration instructions
 
 ## 🎯 Key Features Implementation
 
