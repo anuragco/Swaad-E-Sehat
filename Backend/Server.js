@@ -13,6 +13,7 @@ const adminProductRoutes = require("./Controller/AdminProductRoutes");
 const adminAuth = require("./Middleware/adminAuth.js");
 const adminDataRoutes = require("./Controller/AdminDataRoutes");
 const uploadRoutes = require("./Controller/UploadRoutes");
+const paymentSettingsRoutes = require("./Controller/PaymentSettings");
 // const { initializeCleanupJob } = require('./job/ImageCleanupJob');
 
 const app = express();
@@ -76,6 +77,7 @@ app.use("/status", VerifyOrderRoutes);
 app.use("/stats", DashboardRoutes);
 app.use("/c", ContactController);
 app.use("/dynamic", productRoutes);
+app.use("/payment", paymentSettingsRoutes);
 
 app.use(adminAuth, adminProductRoutes);
 app.use(adminAuth, adminDataRoutes);

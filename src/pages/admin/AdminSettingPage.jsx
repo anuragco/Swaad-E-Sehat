@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { FiSave, FiBell, FiLock, FiGlobe, FiDollarSign } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { FiSave, FiBell, FiLock, FiGlobe, FiDollarSign, FiCreditCard } from 'react-icons/fi';
+import { toast } from 'react-toastify';
+import ClientApiInstance from '../../api/axiosIntercepter';
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
@@ -22,14 +24,63 @@ const AdminSettings = () => {
     enableCoupon: true,
   });
 
+  const [paymentSettings, setPaymentSettings] = useState({
+    cod_enabled: false,
+    online_payment_enabled: true
+  });
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const fetchPaymentSettings = async () => {
+      try {
+        const response = await ClientApiInstance.get('/payment/api/payment-settings');
+        if (response.data.success) {
+          setPaymentSettings(response.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch payment settings:', err);
+        toast.error('Failed to load payment settings');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPaymentSettings();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const val = type === 'checkbox' ? checked : value;
     setSettings(prev => ({ ...prev, [name]: val }));
   };
 
-  const handleSave = () => {
-    console.log('Settings saved:', settings);
+  const handlePaymentSettingsChange = (e) => {
+    const { name, checked } = e.target;
+    setPaymentSettings(prev => ({ ...prev, [name]: checked }));
+  };
+
+  const handleSave = async () => {
+    if (!paymentSettings.cod_enabled && !paymentSettings.online_payment_enabled) {
+      toast.error('At least one payment method must be enabled!');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await ClientApiInstance.post('/payment/api/admin/payment-settings', paymentSettings);
+      if (response.data.success) {
+        toast.success('Payment settings updated successfully!');
+      } else {
+        toast.error(response.data.message || 'Failed to update settings');
+      }
+    } catch (err) {
+      console.error('Failed to save payment settings:', err);
+      toast.error(err.response?.data?.message || 'Failed to save payment settings');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -228,6 +279,47 @@ const AdminSettings = () => {
               </label>
             </div>
           </div>
+
+          {/* Payment Methods Settings */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-lg font-bold text-amber-900 mb-4 flex items-center gap-2 border-b-2 border-amber-200 pb-3">
+              <FiCreditCard size={20} /> Payment Methods
+            </h3>
+            
+            {isLoading ? (
+              <div className="text-center py-4 text-slate-500">Loading...</div>
+            ) : (
+              <div className="space-y-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    name="online_payment_enabled"
+                    checked={paymentSettings.online_payment_enabled}
+                    onChange={handlePaymentSettingsChange}
+                    className="h-4 w-4 text-amber-600 rounded"
+                  />
+                  <span className="text-sm font-medium text-slate-700">Enable Online Payment</span>
+                </label>
+                
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    name="cod_enabled"
+                    checked={paymentSettings.cod_enabled}
+                    onChange={handlePaymentSettingsChange}
+                    className="h-4 w-4 text-amber-600 rounded"
+                  />
+                  <span className="text-sm font-medium text-slate-700">Enable Cash on Delivery (COD)</span>
+                </label>
+                
+                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs text-amber-800">
+                    ⚠️ At least one payment method must be enabled
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -300,10 +392,11 @@ const AdminSettings = () => {
       <div className="flex justify-end">
         <button
           onClick={handleSave}
-          className="flex items-center gap-2 px-6 py-3 font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg shadow-md hover:shadow-lg hover:from-amber-600 hover:to-orange-600 transition-all"
+          disabled={isSaving}
+          className="flex items-center gap-2 px-6 py-3 font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg shadow-md hover:shadow-lg hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <FiSave size={20} />
-          <span>Save Settings</span>
+          <span>{isSaving ? 'Saving...' : 'Save Payment Settings'}</span>
         </button>
       </div>
     </div>
