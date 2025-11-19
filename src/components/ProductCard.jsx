@@ -23,9 +23,11 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
   const isWishlisted = isInWishlist(product.id);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const activeVariantId = product.default_variant_id || product.variants?.[0]?.variant_id_str;
+  const activeVariantName = product.default_variant_name || product.variants?.[0]?.name ;
   
   const itemInCart = items.find(
-    item => item.id === product.id && item.variantName === 'Default'
+    item => item.id === product.id && item.variantName === activeVariantName
   );
 
   const price = product.base_price || product.price || 0;
@@ -47,8 +49,8 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
       id: product.id,
       price: price,
       originalPrice: originalPrice,
-      variant: 'default',
-      variantName: 'Default',
+      variant: activeVariantId,       
+      variantName: activeVariantName,
       image: productImages[0] || '/images/placeholder.jpg'
     };
     
