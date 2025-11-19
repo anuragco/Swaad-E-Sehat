@@ -2,8 +2,15 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../Config/db'); 
 const UserDashAuth = require('../Middleware/userDashAuth.js');
+const rateLimit = require('express-rate-limit');
 
-router.post("/api/orders/create", UserDashAuth, async (req, res) => {
+const createOrderLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: 'Too many order creation attempts from this IP, please try again later.'
+});
+
+router.post("/api/orders/create", UserDashAuth, createOrderLimiter, async (req, res) => {
   const { amount, customerInfo, items, paymentMethod } = req.body;
   
   // This is now working thanks to your middleware!
@@ -17,6 +24,37 @@ router.post("/api/orders/create", UserDashAuth, async (req, res) => {
   try {
     connection = await pool.getConnection();
     await connection.beginTransaction();
+
+    const [settingsRows] = await connection.query(
+      `SELECT setting_key, setting_value 
+       FROM settings 
+       WHERE setting_key IN ('cod_enabled', 'online_payment_enabled')`
+    );
+
+    const paymentSettings = {
+      cod_enabled: false,
+      online_payment_enabled: true
+    };
+
+    settingsRows.forEach(row => {
+      paymentSettings[row.setting_key] = row.setting_value === 'true';
+    });
+
+    if (paymentMethod === 'COD' && !paymentSettings.cod_enabled) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Cash on Delivery is currently not available'
+      });
+    }
+
+    if (paymentMethod !== 'COD' && !paymentSettings.online_payment_enabled) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Online Payment is currently not available'
+      });
+    }
 
     // Validate prices and calculate totals using database prices
     let validatedSubtotal = 0;

@@ -36,7 +36,13 @@ const CheckoutPage = () => {
 
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [selectedAddressKey, setSelectedAddressKey] = useState('new'); // 'new' or array index
+  const [selectedAddressKey, setSelectedAddressKey] = useState('new');
+  
+  const [paymentSettings, setPaymentSettings] = useState({
+    cod_enabled: false,
+    online_payment_enabled: true
+  });
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
   const calculateSubtotal = () => items.reduce((total, item) => total + (item.price * item.quantity), 0);
   const subtotal = calculateSubtotal();
@@ -49,6 +55,29 @@ const CheckoutPage = () => {
       navigate('/cart');
     }
   }, [items, navigate, isProcessing]);
+
+  useEffect(() => {
+    const fetchPaymentSettings = async () => {
+      try {
+        const response = await ClientApiInstance.get("/payment/api/payment-settings");
+        if (response.data.success) {
+          setPaymentSettings(response.data.data);
+          
+          if (response.data.data.online_payment_enabled) {
+            setFormData(prev => ({ ...prev, paymentMethod: 'online' }));
+          } else if (response.data.data.cod_enabled) {
+            setFormData(prev => ({ ...prev, paymentMethod: 'cod' }));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch payment settings:", err);
+      } finally {
+        setIsLoadingSettings(false);
+      }
+    };
+    
+    fetchPaymentSettings();
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -448,24 +477,33 @@ const CheckoutPage = () => {
             </FormSection>
             
             <FormSection title="Payment Method" icon={<FiCreditCard />}>
-              <div className="space-y-4">
-                <PaymentOption
-                  title="Online Payment"
-                  description="Pay with Card, UPI, Wallets, etc."
-                  icon={<FiCreditCard className="w-6 h-6 text-blue-600" />}
-                  value="online"
-                  currentValue={formData.paymentMethod}
-                  onChange={handleInputChange}
-                />
-                <PaymentOption
-                  title="Cash on Delivery (COD)"
-                  description="Pay with cash when your order arrives."
-                  icon={<FiTruck className="w-6 h-6 text-green-600" />}
-                  value="cod"
-                  currentValue={formData.paymentMethod}
-                  onChange={handleInputChange}
-                />
-              </div>
+              {isLoadingSettings ? (
+                <div className="flex items-center gap-2 p-3 bg-slate-100 rounded-lg text-slate-500">
+                  <FiRefreshCw className="animate-spin w-4 h-4" />
+                  <span>Loading payment options...</span>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <PaymentOption
+                    title="Online Payment"
+                    description="Pay with Card, UPI, Wallets, etc."
+                    icon={<FiCreditCard className="w-6 h-6 text-blue-600" />}
+                    value="online"
+                    currentValue={formData.paymentMethod}
+                    onChange={handleInputChange}
+                    disabled={!paymentSettings.online_payment_enabled}
+                  />
+                  <PaymentOption
+                    title="Cash on Delivery (COD)"
+                    description="Pay with cash when your order arrives."
+                    icon={<FiTruck className="w-6 h-6 text-green-600" />}
+                    value="cod"
+                    currentValue={formData.paymentMethod}
+                    onChange={handleInputChange}
+                    disabled={!paymentSettings.cod_enabled}
+                  />
+                </div>
+              )}
             </FormSection>
           </div>
 
@@ -506,15 +544,17 @@ const FormGroup = ({ children }) => (
   </div>
 );
 
-const PaymentOption = ({ title, description, icon, value, currentValue, onChange }) => {
+const PaymentOption = ({ title, description, icon, value, currentValue, onChange, disabled = false }) => {
   const isChecked = currentValue === value;
   return (
     <label 
       htmlFor={value} 
-      className={`border rounded-lg p-5 flex items-center gap-5 cursor-pointer transition-all ${
-        isChecked 
-          ? 'border-amber-500 ring-2 ring-amber-500 bg-amber-50' 
-          : 'border-slate-300 hover:border-slate-400'
+      className={`border rounded-lg p-5 flex items-center gap-5 transition-all ${
+        disabled 
+          ? 'bg-slate-100 border-slate-200 cursor-not-allowed opacity-75' 
+          : isChecked 
+            ? 'border-amber-500 ring-2 ring-amber-500 bg-amber-50 cursor-pointer' 
+            : 'border-slate-300 hover:border-slate-400 cursor-pointer'
       }`}
     >
       <input
@@ -524,14 +564,26 @@ const PaymentOption = ({ title, description, icon, value, currentValue, onChange
         value={value}
         checked={isChecked}
         onChange={onChange}
-        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300"
+        disabled={disabled}
+        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
       />
       <div className="flex-shrink-0">
-        {icon}
+        {React.cloneElement(icon, { 
+          className: `w-6 h-6 ${disabled ? 'text-slate-400' : icon.props.className}`
+        })}
       </div>
-      <div>
-        <h4 className="text-base font-semibold text-slate-800">{title}</h4>
-        <p className="text-sm text-slate-500">{description}</p>
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <h4 className={`text-base font-semibold ${disabled ? 'text-slate-500' : 'text-slate-800'}`}>
+            {title}
+          </h4>
+          {disabled && (
+            <span className="text-red-600 text-xl">❌</span>
+          )}
+        </div>
+        <p className={`text-sm ${disabled ? 'text-slate-400' : 'text-slate-500'}`}>
+          {disabled ? 'Not Available' : description}
+        </p>
       </div>
     </label>
   );
