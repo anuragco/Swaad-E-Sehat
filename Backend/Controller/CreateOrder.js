@@ -101,7 +101,7 @@ router.post("/api/orders/create", UserDashAuth, createOrderLimiter, async (req, 
     
     // Calculate totals using validated database prices
     const subtotal = validatedSubtotal;
-    const shippingCharges = subtotal >= 500 ? 0 : 150;
+    const shippingCharges = subtotal >= 1100 ? 0 : 150;
     const totalAmount = subtotal + shippingCharges;
 
     // --- Block 1: Create the Order ---
