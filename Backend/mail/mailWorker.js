@@ -40,7 +40,7 @@ async function sendMail({ to, subject, template, payload = {} }) {
 
         // Email options
         const mailOptions = {
-            from: process.env.SMTP_FROM || process.env.SMTP_USER,
+            from: process.env.SMTP_FROM,
             to,
             subject,
             html: htmlContent
