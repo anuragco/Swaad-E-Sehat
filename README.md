@@ -244,10 +244,48 @@ src/
 
 ### Environment Variables
 
+#### Frontend
+
 ```env
 REACT_APP_RAZORPAY_KEY_ID=your_razorpay_key_id
 REACT_APP_RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 ```
+
+#### Backend
+
+Copy `Backend/.env.example` to `Backend/.env` and configure the following:
+
+```env
+# Database Configuration
+DB_HOST=your_db_host
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=your_db_name
+
+# SMTP Configuration (Gmail)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=officialcompany@gmail.com
+SMTP_PASS=your_16_digit_app_password
+SMTP_FROM=support@swaadesehat.in
+ORDER_CONFIRMATION_ADMIN_EMAIL=admin@example.com
+
+# JWT Configuration
+JWT_SECRET=your_jwt_secret_key
+JWT_PUBLIC_KEY=your_jwt_public_key
+
+# Server Configuration
+EXPRESS_PORT=5000
+API_BASE_URL=https://api.swaadesehat.in
+```
+
+### Gmail SMTP Setup
+
+1. Enable 2-Step Verification on your Google Account
+2. Generate an App Password at https://myaccount.google.com/apppasswords
+3. Use the 16-character App Password as `SMTP_PASS`
+4. Set `SMTP_USER` to your Gmail address
+5. Set `SMTP_FROM` to your company's official domain email
 
 ### Razorpay Setup
 
