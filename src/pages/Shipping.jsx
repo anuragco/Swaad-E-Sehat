@@ -273,7 +273,7 @@ const Shipping = () => {
                   <div className="space-y-3">
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                       <h4 className="font-bold text-slate-900 mb-2">Metro & Tier 2 Cities</h4>
-                      <p className="text-slate-700">Flat ₹40-100 per order or FREE on orders above ₹500</p>
+                      <p className="text-slate-700">Flat ₹79 per order or FREE on orders above ₹1100</p>
                     </div>
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                       <h4 className="font-bold text-slate-900 mb-2">Remote Areas</h4>
@@ -500,7 +500,7 @@ const Shipping = () => {
                 </div>
                 <div className="bg-white bg-opacity-15 p-3 rounded-lg">
                   <p className="font-semibold mb-1">Shipping Cost</p>
-                  <p className="text-blue-100">₹40-100 or FREE on orders above ₹500</p>
+                  <p className="text-blue-100">₹79 or FREE on orders above ₹1100</p>
                 </div>
                 <div className="bg-white bg-opacity-15 p-3 rounded-lg">
                   <p className="font-semibold mb-1">Real-Time Tracking</p>
@@ -560,7 +560,7 @@ const Shipping = () => {
                 </li>
                 <li className="flex items-start gap-2">
                   <FiCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <span>Free shipping on orders above ₹500</span>
+                  <span>Free shipping on orders above ₹1100</span>
                 </li>
               </ul>
             </div>

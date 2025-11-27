@@ -3,10 +3,13 @@ const fs = require('fs').promises;
 const path = require('path');
 
 // Create reusable transporter
+// Gmail SMTP uses port 587 with STARTTLS (secure: false)
+// Hostinger SMTP uses port 465 with SSL (secure: true)
+const smtpPort = Number(process.env.SMTP_PORT);
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: true,
+    port: smtpPort,
+    secure: smtpPort === 465, // true for port 465, false for port 587 (STARTTLS)
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
@@ -40,7 +43,7 @@ async function sendMail({ to, subject, template, payload = {} }) {
 
         // Email options
         const mailOptions = {
-            from: process.env.SMTP_FROM || process.env.SMTP_USER,
+            from: process.env.SMTP_FROM,
             to,
             subject,
             html: htmlContent

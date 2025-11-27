@@ -37,7 +37,7 @@ const CartPage = () => {
 
   const subtotal = calculateSubtotal();
   const discount = calculateDiscount();
-  const shippingCost = subtotal >= 500 ? 0 : 150;
+  const shippingCost = subtotal >= 1100 ? 0 : 79;
   const total = subtotal + shippingCost; 
 
   if (items.length === 0) {
@@ -280,7 +280,7 @@ const OrderSummary = ({ subtotal, discount, shippingCost, total, itemCount }) =>
       </div>
       
       <div className="p-6 border-t border-slate-100 space-y-3">
-        <SummaryBenefit icon={<FiTruck />} text="Free shipping on orders over ₹500" />
+        <SummaryBenefit icon={<FiTruck />} text="Free shipping on orders over ₹1100" />
         <SummaryBenefit icon={<FiShield />} text="Secure 100% payment processing" />
         <SummaryBenefit icon={<FiRotateCcw />} text="Secured Delivery" />
       </div>
@@ -290,7 +290,7 @@ const OrderSummary = ({ subtotal, discount, shippingCost, total, itemCount }) =>
 
 // --- NEW: Helper Component for Shipping Progress ---
 const ShippingProgress = ({ subtotal }) => {
-  const shippingThreshold = 500;
+  const shippingThreshold = 1100;
   const amountLeft = shippingThreshold - subtotal;
   const percent = Math.max(0, Math.min((subtotal / shippingThreshold) * 100, 100));
 
