@@ -75,11 +75,6 @@
   color: var(--white);
 }
 
-.badge-discount {
-  background-color: var(--error);
-  color: var(--white);
-}
-
 /* Sticker Badge */
 .sticker-badge {
   position: relative;

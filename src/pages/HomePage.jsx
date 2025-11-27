@@ -270,7 +270,7 @@ const HomePage = () => {
               Ready to Experience Natural Goodness?
             </h2>
             <p className="text-lg text-amber-100 mt-4 mb-8 text-balance">
-              Order now and get 10% off on your first purchase. Free shipping on orders above ₹1100.
+              Free shipping on orders above ₹1100.
             </p>
             <div className="flex justify-center gap-4 flex-wrap">
               <Link 

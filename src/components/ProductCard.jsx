@@ -33,9 +33,6 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
   const price = product.base_price || product.price || 0;
   const originalPrice = product.base_original_price || product.originalPrice || price;
   const hasDiscount = originalPrice > price;
-  const discountPercentage = hasDiscount 
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
-    : 0;
 
   const currentStock = product.stock || 0;
   const productImages = product.images || [];
@@ -119,11 +116,6 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
             <div className="absolute top-3 left-3 flex flex-col gap-1.5">
               {product.isNew > 0 && <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500 text-white">New</span>}
               {product.isBestSeller > 0 && <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500 text-white">Best Seller</span>}
-              {hasDiscount && (
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-500 text-white">
-                  {discountPercentage}% OFF
-                </span>
-              )}
             </div>
 
             {/* Quick Actions (Unchanged) */}
