@@ -46,7 +46,7 @@ const CheckoutPage = () => {
 
   const calculateSubtotal = () => items.reduce((total, item) => total + (item.price * item.quantity), 0);
   const subtotal = calculateSubtotal();
-  const shippingCost = subtotal >= 500 ? 0 : 150;
+  const shippingCost = subtotal >= 1100 ? 0 : 79;
   const total = subtotal + shippingCost;
 
   useEffect(() => {
@@ -678,7 +678,7 @@ const PaymentWaitingModal = ({ orderId, onClose }) => (
 );
 
 const ShippingProgress = ({ subtotal }) => {
-  const shippingThreshold = 500;
+  const shippingThreshold = 1100;
   const amountLeft = shippingThreshold - subtotal;
   const percent = Math.max(0, Math.min((subtotal / shippingThreshold) * 100, 100));
 
