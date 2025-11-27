@@ -97,7 +97,7 @@ const FAQ = () => {
       id: 'shipping-3',
       category: 'Shipping & Delivery',
       question: 'How much does shipping cost?',
-      answer: 'Shipping costs are calculated based on location and order weight. Standard rates: ₹40-100 for metro and tier-2 cities (Free on orders above ₹500). Remote areas have variable costs calculated at checkout. You\'ll see the exact shipping charge before completing payment.'
+      answer: 'Shipping costs are calculated based on location and order weight. Standard rates: ₹40-100 for metro and tier-2 cities (Free on orders above ₹1100). Remote areas have variable costs calculated at checkout. You\'ll see the exact shipping charge before completing payment.'
     },
     {
       id: 'shipping-4',
@@ -122,19 +122,19 @@ const FAQ = () => {
       id: 'return-1',
       category: 'Returns & Refunds',
       question: 'Can I return or exchange a product I don\'t like?',
-      answer: 'No, we operate on an "All Sales Final" policy due to the perishable and homemade nature of our products. We cannot accept returns for taste preferences, personal dislike, or change of mind. However, we offer replacements or refunds for damaged items, wrong items, or expired products within 72 hours.'
+      answer: 'No, we operate on an "All Sales Final" policy due to the perishable and homemade nature of our products. We cannot accept returns for taste preferences, personal dislike, or change of mind. However, we offer replacements or refunds for damaged items, wrong items, or expired products within 24 hours.'
     },
     {
       id: 'return-2',
       category: 'Returns & Refunds',
       question: 'What conditions qualify for a replacement or refund?',
-      answer: 'You\'re eligible for a full replacement or refund if you receive: (1) Damaged/broken packaging or product leaking or crushed in transit, (2) Wrong item (completely different product), or (3) Expired product (expired on delivery, not after storage). You must report within 72 hours with photographic evidence.'
+      answer: 'You\'re eligible for a full replacement or refund if you receive: (1) Damaged/broken packaging or product leaking or crushed in transit, (2) Wrong item (completely different product), or (3) Expired product (expired on delivery, not after storage). You must report within 24 hours with photographic evidence.'
     },
     {
       id: 'return-3',
       category: 'Returns & Refunds',
       question: 'How do I file a claim for damage or issues?',
-      answer: 'Contact us within 72 hours of delivery at brothersfoodie1@gmail.com. Include your Order ID, clear photographs showing the damage/issue/expiry date, and a brief description. Claims without photographic evidence cannot be processed. Our quality team reviews within 1-2 business days. If approved, we send a replacement or process a refund within 5-7 business days.'
+      answer: 'Contact us within 24 hours of delivery at brothersfoodie1@gmail.com. Include your Order ID, clear photographs showing the damage/issue/expiry date, and a brief description. Claims without photographic evidence cannot be processed. Our quality team reviews within 1-2 business days. If approved, we send a replacement or process a refund within 5-7 business days.'
     },
     {
       id: 'return-4',

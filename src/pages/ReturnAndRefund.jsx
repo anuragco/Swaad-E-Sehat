@@ -151,10 +151,10 @@ const ReturnAndRefund = () => {
               <div className="p-8">
                 <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg mb-8">
                   <p className="font-bold text-blue-900 text-xl mb-2">
-                    ⏰ 72-Hour Window Required
+                    ⏰ 24-Hour Window Required
                   </p>
                   <p className="text-blue-800">
-                    You must contact us within <span className="font-bold">72 hours (3 days)</span> of your order being delivered to be eligible for a replacement or refund.
+                    You must contact us within <span className="font-bold">24 hours (1 day)</span> of your order being delivered to be eligible for a replacement or refund.
                   </p>
                 </div>
 
@@ -280,7 +280,7 @@ const ReturnAndRefund = () => {
               <ul className="space-y-3 text-sm text-slate-700">
                 <li className="flex items-start gap-2">
                   <FiCheck className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                  <span>72-hour claim window</span>
+                  <span>24-hour claim window</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <FiCheck className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />

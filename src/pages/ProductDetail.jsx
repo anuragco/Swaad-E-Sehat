@@ -293,7 +293,7 @@ const ProductDetail = () => {
             </div>
 
             <div className="pt-6 border-t border-slate-200 grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <ProductFeature icon={<FiTruck />} text="Free shipping over ₹500" />
+              <ProductFeature icon={<FiTruck />} text="Free shipping over ₹1100" />
               <ProductFeature icon={<FiShield />} text="100% Natural Ingredients" />
               <ProductFeature icon={<FiRefreshCw />} text="Secure 100% Payment" />
             </div>
