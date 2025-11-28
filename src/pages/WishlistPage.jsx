@@ -1,12 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { FiHeart, FiShoppingCart, FiTrash2 } from 'react-icons/fi';
+import { FiHeart, FiShoppingCart, FiTrash2, FiLoader } from 'react-icons/fi';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
+import { getProductBySlug } from '../data/products';
+
+// Helper function to normalize product price from different data structures
+const normalizeProductPrice = (product) => {
+  const price = product.base_price || product.salePrice || product.price || 0;
+  const originalPrice = product.base_original_price || product.originalPrice || product.price || price;
+  return { price, originalPrice, hasDiscount: originalPrice > price };
+};
 
 const WishlistPage = () => {
-  const { wishlist, removeFromWishlist, clearWishlist } = useWishlist();
+  const { wishlistRefs, removeFromWishlist, clearWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const handleRemoveInvalidProduct = useCallback((productId) => {
+    removeFromWishlist(productId);
+  }, [removeFromWishlist]);
+
+  // Fetch fresh product data from API when wishlist refs change
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (wishlistRefs.length === 0) {
+        setProducts([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        // Fetch all products in parallel
+        const productPromises = wishlistRefs.map(ref => getProductBySlug(ref.slug));
+        const fetchedProducts = await Promise.all(productPromises);
+        
+        // Filter out null results (products that no longer exist)
+        const validProducts = fetchedProducts.filter(product => product !== null);
+        
+        // Collect invalid product IDs first, then remove them
+        const validProductIds = new Set(validProducts.map(p => p.id));
+        const invalidRefs = wishlistRefs.filter(ref => !validProductIds.has(ref.id));
+        invalidRefs.forEach(ref => handleRemoveInvalidProduct(ref.id));
+        
+        setProducts(validProducts);
+      } catch (error) {
+        console.error('Error fetching wishlist products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [wishlistRefs, handleRemoveInvalidProduct]);
 
   // --- Handlers ---
   const handleAddToCart = (e, product, quantity = 1) => {
@@ -22,8 +71,22 @@ const WishlistPage = () => {
     removeFromWishlist(productId);
   };
 
+  // --- Loading State ---
+  if (loading) {
+    return (
+      <div className="w-full bg-slate-50 pt-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+          <div className="flex flex-col items-center justify-center text-center bg-white p-12 rounded-xl shadow-sm">
+            <FiLoader className="w-12 h-12 text-amber-500 animate-spin mb-4" />
+            <p className="text-lg text-slate-500">Loading your wishlist...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // --- 1. Empty Wishlist State ---
-  if (wishlist.length === 0) {
+  if (products.length === 0) {
     return (
       <div className="w-full bg-slate-50 pt-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
@@ -57,7 +120,7 @@ const WishlistPage = () => {
           <div>
             <h1 className="text-4xl font-bold font-serif text-slate-900">My Wishlist</h1>
             <p className="text-lg text-slate-500 mt-2">
-              {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in your wishlist
+              {products.length} {products.length === 1 ? 'item' : 'items'} in your wishlist
             </p>
           </div>
           <button 
@@ -71,7 +134,7 @@ const WishlistPage = () => {
 
         {/* Wishlist Items Grid */}
         <div className="grid grid-cols-1 gap-6">
-          {wishlist.map((product) => (
+          {products.map((product) => (
             <WishlistItem 
               key={product.id} 
               product={product} 
@@ -88,15 +151,14 @@ const WishlistPage = () => {
 // --- Helper Component for each Wishlist Item ---
 const WishlistItem = ({ product, onAddToCart, onRemove }) => {
   const [quantity, setQuantity] = useState(1);
-  const price = product.salePrice || product.price;
-  const originalPrice = product.price;
-  const hasDiscount = product.salePrice && product.salePrice < product.price;
+  const { price, originalPrice, hasDiscount } = normalizeProductPrice(product);
   
-  // Basic stock check (assuming `product.stock` exists)
-  const isOutOfStock = product.stock === 0;
+  // Basic stock check
+  const currentStock = product.stock || 0;
+  const isOutOfStock = currentStock === 0;
 
   const handleQuantityChange = (delta) => {
-    const maxStock = product.stock || 999; // Default to 999 if stock not defined
+    const maxStock = currentStock || 999; // Default to 999 if stock not defined
     setQuantity(prev => {
       const newQty = prev + delta;
       return Math.max(1, Math.min(newQty, maxStock));
@@ -106,7 +168,13 @@ const WishlistItem = ({ product, onAddToCart, onRemove }) => {
   const handleAddToCartWithQuantity = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onAddToCart(e, product, quantity);
+    // Pass product with normalized price data for cart
+    const productForCart = {
+      ...product,
+      price: price,
+      originalPrice: originalPrice,
+    };
+    onAddToCart(e, productForCart, quantity);
   };
 
   return (
@@ -178,7 +246,7 @@ const WishlistItem = ({ product, onAddToCart, onRemove }) => {
             <button 
               className="w-9 h-9 flex items-center justify-center rounded-lg border-2 border-slate-300 text-slate-700 hover:bg-slate-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
               onClick={() => handleQuantityChange(1)}
-              disabled={isOutOfStock || quantity >= (product.stock || 999)}
+              disabled={isOutOfStock || quantity >= (currentStock || 999)}
               aria-label="Increase quantity"
             >
               +
