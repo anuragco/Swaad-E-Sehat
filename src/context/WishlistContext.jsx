@@ -6,7 +6,8 @@ const WISHLIST_STORAGE_KEY = 'swaad_wishlist';
 const WISHLIST_EXPIRY_DAYS = 30; // Wishlist data expires after 30 days
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
-const getStoredWishlist = () => {
+// Store only product references (id and slug) to keep data fresh
+const getStoredWishlistRefs = () => {
   try {
     const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
     if (!stored) return [];
@@ -28,10 +29,12 @@ const getStoredWishlist = () => {
   }
 };
 
-const saveWishlistToStorage = (items) => {
+const saveWishlistRefsToStorage = (items) => {
   try {
     const expiry = Date.now() + (WISHLIST_EXPIRY_DAYS * MILLISECONDS_PER_DAY);
-    localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify({ items, expiry }));
+    // Store only id and slug references, not full product data
+    const refs = items.map(item => ({ id: item.id, slug: item.slug }));
+    localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify({ items: refs, expiry }));
   } catch (error) {
     console.error('Error saving wishlist to localStorage:', error);
   }
@@ -44,7 +47,8 @@ const wishlistReducer = (state, action) => {
       if (existingItem) {
         return state; // Item already in wishlist
       }
-      return [...state, action.payload];
+      // Store only id and slug reference
+      return [...state, { id: action.payload.id, slug: action.payload.slug }];
     
     case 'REMOVE_FROM_WISHLIST':
       return state.filter(item => item.id !== action.payload);
@@ -58,17 +62,17 @@ const wishlistReducer = (state, action) => {
 };
 
 export const WishlistProvider = ({ children }) => {
-  const [wishlist, dispatch] = useReducer(wishlistReducer, undefined, getStoredWishlist);
+  const [wishlistRefs, dispatch] = useReducer(wishlistReducer, undefined, getStoredWishlistRefs);
   const isInitialMount = useRef(true);
 
-  // Save wishlist to localStorage whenever it changes (skip initial mount)
+  // Save wishlist refs to localStorage whenever they change (skip initial mount)
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    saveWishlistToStorage(wishlist);
-  }, [wishlist]);
+    saveWishlistRefsToStorage(wishlistRefs);
+  }, [wishlistRefs]);
 
   const addToWishlist = (product) => {
     dispatch({ type: 'ADD_TO_WISHLIST', payload: product });
@@ -83,16 +87,16 @@ export const WishlistProvider = ({ children }) => {
   };
 
   const isInWishlist = (productId) => {
-    return wishlist.some(item => item.id === productId);
+    return wishlistRefs.some(item => item.id === productId);
   };
 
   const value = {
-    wishlist,
+    wishlistRefs, // Product references (id, slug) for fetching fresh data
     addToWishlist,
     removeFromWishlist,
     clearWishlist,
     isInWishlist,
-    wishlistCount: wishlist.length
+    wishlistCount: wishlistRefs.length
   };
 
   return (
