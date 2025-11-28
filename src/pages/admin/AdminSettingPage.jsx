@@ -15,7 +15,7 @@ const AdminSettings = () => {
     currency: 'INR',
     taxPercentage: 18,
     shippingCost: 50,
-    freeShippingAbove: 500,
+    freeShippingAbove: 1100,
     enableNotifications: true,
     enableSMS: true,
     enableEmail: true,
