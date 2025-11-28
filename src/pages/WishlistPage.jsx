@@ -7,8 +7,11 @@ import { getProductBySlug } from '../data/products';
 
 // Helper function to normalize product price from different data structures
 const normalizeProductPrice = (product) => {
-  const price = product.base_price || product.salePrice || product.price || 0;
-  const originalPrice = product.base_original_price || product.originalPrice || product.price || price;
+  // Check for base_price first (from product list API), then fall back to first variant price (from single product API)
+  const firstVariant = product.variants?.[0];
+  const price = product.base_price || product.salePrice || product.price || firstVariant?.price || 0;
+  // For originalPrice, use the same source as price to ensure consistent discount calculations
+  const originalPrice = product.base_original_price || product.originalPrice || firstVariant?.originalPrice || price;
   return { price, originalPrice, hasDiscount: originalPrice > price };
 };
 
