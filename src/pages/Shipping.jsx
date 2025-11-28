@@ -248,7 +248,7 @@ const Shipping = () => {
                     <div className="flex-1">
                       <h3 className="font-bold text-slate-900 text-xl mb-2">Safe Delivery</h3>
                       <p className="text-slate-700">
-                        Package is delivered to your address. Please inspect immediately and report any damage within 72 hours.
+                        Package is delivered to your address. Please inspect immediately and report any damage within 24 hours.
                       </p>
                     </div>
                   </div>
@@ -366,7 +366,7 @@ const Shipping = () => {
 
                   <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
                     <p className="text-teal-900 font-medium">
-                      Despite our best efforts, products may shift during transit. Please inspect your package carefully upon delivery and report any damage within 72 hours.
+                      Despite our best efforts, products may shift during transit. Please inspect your package carefully upon delivery and report any damage within 24 hours.
                     </p>
                   </div>
                 </div>
@@ -420,7 +420,7 @@ const Shipping = () => {
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-red-600 font-bold">•</span>
-                        <span>Contact us within 72 hours with photos and order ID</span>
+                        <span>Contact us within 24 hours with photos and order ID</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-red-600 font-bold">•</span>
@@ -556,7 +556,7 @@ const Shipping = () => {
                 </li>
                 <li className="flex items-start gap-2">
                   <FiCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <span>72-hour damage claim window</span>
+                  <span>24-hour damage claim window</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <FiCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />

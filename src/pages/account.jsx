@@ -128,7 +128,11 @@ const Account = () => {
             </div>
             
             <div className="relative z-10">
-              <div className="text-5xl mb-4">🌿</div>
+              <img 
+                src="https://ik.imagekit.io/swaadesehat/swadesehat-frontent-image/sticker.jpg?updatedAt=1763343968478" 
+                alt="Swaad-E-Sehat Logo" 
+                className="w-24 h-24 rounded-full object-cover mb-4 border-4 border-white/30 shadow-lg"
+              />
               <h1 className="text-4xl font-bold mb-4">Swaad-E-Sehat</h1>
               <p className="text-xl text-amber-100 mb-8">Premium Natural Sweets & Dry Fruits</p>
               

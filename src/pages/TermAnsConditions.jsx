@@ -184,7 +184,7 @@ const TermsAndConditions = () => {
                   <div>
                     <h3 className="font-bold text-slate-900 text-lg mb-3">All Sales Are Final</h3>
                     <p className="text-slate-700">
-                      Due to the perishable and homemade nature of our products, <span className="font-bold">all sales are final</span>. See our Return & Refund Policy for limited exceptions (damaged items, wrong items, or expired products within 72 hours).
+                      Due to the perishable and homemade nature of our products, <span className="font-bold">all sales are final</span>. See our Return & Refund Policy for limited exceptions (damaged items, wrong items, or expired products within 24 hours).
                     </p>
                   </div>
                 </div>
@@ -209,7 +209,7 @@ const TermsAndConditions = () => {
                   </p>
                   <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mt-4">
                     <p className="text-purple-900 font-medium">
-                      If your package arrives damaged, you have <span className="font-bold">72 hours</span> to report it with photographic evidence. See our Return & Refund Policy for the complete claim process.
+                      If your package arrives damaged, you have <span className="font-bold">24 hours</span> to report it with photographic evidence. See our Return & Refund Policy for the complete claim process.
                     </p>
                   </div>
                 </div>
@@ -400,7 +400,7 @@ const TermsAndConditions = () => {
                 </li>
                 <li className="flex items-start gap-2">
                   <FiCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <span>72-hour exception window for claims</span>
+                  <span>24-hour exception window for claims</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <FiCheck className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />

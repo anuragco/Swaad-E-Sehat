@@ -76,9 +76,6 @@ const ProductDetail = () => {
   const isWishlisted = isInWishlist(product.id);
   const currentStock = selectedVariant.stock || product.stock || 0;
   const hasDiscount = selectedVariant.originalPrice > selectedVariant.price;
-  const discountPercentage = hasDiscount
-    ? Math.round(((selectedVariant.originalPrice - selectedVariant.price) / selectedVariant.originalPrice) * 100)
-    : 0;
   const productImages = Array.isArray(product.images) && product.images.length > 0
     ? product.images
     : ['/images/placeholder.jpg'];
@@ -142,11 +139,6 @@ const ProductDetail = () => {
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
-              {hasDiscount && (
-                <div className="absolute top-4 left-4 px-3 py-1 bg-red-500 text-white text-sm font-semibold rounded-full">
-                  {discountPercentage}% OFF
-                </div>
-              )}
             </div>
             
             <div className="grid grid-cols-5 gap-3">
@@ -293,7 +285,7 @@ const ProductDetail = () => {
             </div>
 
             <div className="pt-6 border-t border-slate-200 grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <ProductFeature icon={<FiTruck />} text="Free shipping over ₹500" />
+              <ProductFeature icon={<FiTruck />} text="Free shipping over ₹1100" />
               <ProductFeature icon={<FiShield />} text="100% Natural Ingredients" />
               <ProductFeature icon={<FiRefreshCw />} text="Secure 100% Payment" />
             </div>
