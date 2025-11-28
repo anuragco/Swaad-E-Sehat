@@ -1,24 +1,27 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 
 const WishlistContext = createContext();
 
 const WISHLIST_STORAGE_KEY = 'swaad_wishlist';
 const WISHLIST_EXPIRY_DAYS = 30; // Wishlist data expires after 30 days
+const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const getStoredWishlist = () => {
   try {
     const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
     if (!stored) return [];
     
-    const { items, expiry } = JSON.parse(stored);
+    const parsed = JSON.parse(stored);
+    const items = parsed?.items;
+    const expiry = parsed?.expiry;
     
     // Check if wishlist has expired
-    if (expiry && new Date().getTime() > expiry) {
+    if (expiry && Date.now() > expiry) {
       localStorage.removeItem(WISHLIST_STORAGE_KEY);
       return [];
     }
     
-    return items || [];
+    return Array.isArray(items) ? items : [];
   } catch (error) {
     console.error('Error loading wishlist from localStorage:', error);
     return [];
@@ -27,7 +30,7 @@ const getStoredWishlist = () => {
 
 const saveWishlistToStorage = (items) => {
   try {
-    const expiry = new Date().getTime() + (WISHLIST_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+    const expiry = Date.now() + (WISHLIST_EXPIRY_DAYS * MILLISECONDS_PER_DAY);
     localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify({ items, expiry }));
   } catch (error) {
     console.error('Error saving wishlist to localStorage:', error);
@@ -49,19 +52,21 @@ const wishlistReducer = (state, action) => {
     case 'CLEAR_WISHLIST':
       return [];
     
-    case 'LOAD_WISHLIST':
-      return action.payload;
-    
     default:
       return state;
   }
 };
 
 export const WishlistProvider = ({ children }) => {
-  const [wishlist, dispatch] = useReducer(wishlistReducer, [], getStoredWishlist);
+  const [wishlist, dispatch] = useReducer(wishlistReducer, undefined, getStoredWishlist);
+  const isInitialMount = useRef(true);
 
-  // Save wishlist to localStorage whenever it changes
+  // Save wishlist to localStorage whenever it changes (skip initial mount)
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     saveWishlistToStorage(wishlist);
   }, [wishlist]);
 
