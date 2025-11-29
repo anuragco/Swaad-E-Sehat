@@ -32,12 +32,18 @@ ClientApiInstance.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       console.error("Unauthorized! Logging out...");
       
-      // Clear all auth-related data from localStorage
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
-      
-      // Redirect to login page
-      window.location.href = '/account'; 
+      // Only redirect if not already on the login page to prevent loops
+      if (window.location.pathname !== '/account') {
+        // Clear all auth-related data from localStorage
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        
+        // Set flag to prevent login page from auto-redirecting back
+        sessionStorage.setItem('session_expired', 'true');
+        
+        // Redirect to login page
+        window.location.href = '/account'; 
+      }
     }
     return Promise.reject(error);
   }
