@@ -31,9 +31,18 @@ const Account = () => {
   };
 
   useEffect(() => {
-   if(localStorage.getItem('authToken')) {
-     window.location.href = '/user/dashboard';
-   }
+    // Check if user was just logged out due to session expiry
+    const sessionExpired = sessionStorage.getItem('session_expired');
+    if (sessionExpired) {
+      // Clear the flag so it doesn't affect future visits
+      sessionStorage.removeItem('session_expired');
+      // Don't auto-redirect - user needs to login again
+      return;
+    }
+    
+    if(localStorage.getItem('authToken')) {
+      window.location.href = '/user/dashboard';
+    }
   }, []);
 
   const handleLogin = async (e) => {

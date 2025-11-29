@@ -44,10 +44,15 @@ const UserDashboard = () => {
         }
       } catch (err) {
         console.error("Dashboard API Error:", err);
-        toast.error("An error occurred while fetching your data.");
-        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        // 401 is handled by axios interceptor, only handle 403 here
+        if (err.response && err.response.status === 403) {
+          toast.error("Access forbidden.");
           localStorage.removeItem('authToken');
+          localStorage.removeItem('user');
           navigate('/account');
+        } else if (err.response?.status !== 401) {
+          // Only show error toast for non-401 errors since 401 redirects via interceptor
+          toast.error("An error occurred while fetching your data.");
         }
       } finally {
         setIsLoading(false);
