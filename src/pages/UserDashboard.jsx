@@ -50,8 +50,8 @@ const UserDashboard = () => {
           localStorage.removeItem('authToken');
           localStorage.removeItem('user');
           navigate('/account');
-        } else if (!err.response || err.response.status !== 401) {
-          // Don't show error toast for 401 since user will be redirected by interceptor
+        } else if (err.response?.status !== 401) {
+          // Only show error toast for non-401 errors since 401 redirects via interceptor
           toast.error("An error occurred while fetching your data.");
         }
       } finally {

@@ -24,6 +24,9 @@ ClientApiInstance.interceptors.request.use(
   }
 );
 
+// Login page path constant to avoid hard-coded string comparisons
+const LOGIN_PATH = '/account';
+
 ClientApiInstance.interceptors.response.use(
   (response) => {
     return response;
@@ -33,7 +36,8 @@ ClientApiInstance.interceptors.response.use(
       console.error("Unauthorized! Logging out...");
       
       // Only redirect if not already on the login page to prevent loops
-      if (window.location.pathname !== '/account') {
+      // Using startsWith to handle query parameters or trailing slashes
+      if (!window.location.pathname.startsWith(LOGIN_PATH)) {
         // Clear all auth-related data from localStorage
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
@@ -42,7 +46,7 @@ ClientApiInstance.interceptors.response.use(
         sessionStorage.setItem('session_expired', 'true');
         
         // Redirect to login page
-        window.location.href = '/account'; 
+        window.location.href = LOGIN_PATH; 
       }
     }
     return Promise.reject(error);
