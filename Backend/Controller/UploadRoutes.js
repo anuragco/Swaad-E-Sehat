@@ -17,9 +17,12 @@ const uploadLimiter = rateLimit({
   message: "Too many uploads, try again later.",
 });
 
+// Vercel serverless functions have a 4.5MB body size limit on free tier
+const MAX_FILE_SIZE = 1024 * 1024 * 4; // 4MB to stay safely under Vercel's limit
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 1024 * 1024 * 15 },
+  limits: { fileSize: MAX_FILE_SIZE },
   fileFilter(req, file, cb) {
     if (
       file.mimetype === "image/jpeg" ||
@@ -36,7 +39,30 @@ const upload = multer({
 router.post(
   "/api/admin/upload-image",
   uploadLimiter,
-  upload.single("image"),
+  (req, res, next) => {
+    upload.single("image")(req, res, (err) => {
+      if (err) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return res.status(413).json({
+            success: false,
+            message: "File too large. Maximum size is 4MB.",
+          });
+        }
+        if (err.message === "Invalid file type") {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid file type. Only JPEG, PNG, and WebP are allowed.",
+          });
+        }
+        return res.status(500).json({
+          success: false,
+          message: "Upload error",
+          error: err.message,
+        });
+      }
+      next();
+    });
+  },
   async (req, res) => {
     try {
       if (!req.file) {

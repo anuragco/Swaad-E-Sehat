@@ -165,10 +165,19 @@ const VariantEditor = ({ variants, setVariants }) => {
 
 const ImageEditor = ({ images, setImages }) => {
   const [isUploading, setIsUploading] = useState(false);
+  const MAX_FILE_SIZE_MB = 4;
+  const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024; // 4MB
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // Validate file size before upload
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(`File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB. Your file is ${(file.size / (1024 * 1024)).toFixed(1)}MB.`);
+      e.target.value = ''; // Reset the input
+      return;
+    }
 
     setIsUploading(true);
     const formData = new FormData();
@@ -190,9 +199,11 @@ const ImageEditor = ({ images, setImages }) => {
       }
     } catch (err) {
       console.error(err);
-      toast.error("An error occurred during upload.");
+      const errorMessage = err.response?.data?.message || "An error occurred during upload.";
+      toast.error(errorMessage);
     } finally {
       setIsUploading(false);
+      e.target.value = ''; // Reset the input for next upload
     }
   };
 
@@ -203,6 +214,7 @@ const ImageEditor = ({ images, setImages }) => {
   return (
     <div className="p-5 border-2 border-amber-200 rounded-lg space-y-3 bg-amber-50">
       <label className="block text-sm font-semibold text-amber-900">🖼️ Product Images</label>
+      <p className="text-xs text-amber-700">Max file size: {MAX_FILE_SIZE_MB}MB. Supported formats: JPEG, PNG, WebP</p>
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
           {images.map((img, index) => (
