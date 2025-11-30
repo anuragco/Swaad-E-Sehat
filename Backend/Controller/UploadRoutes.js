@@ -51,34 +51,33 @@ router.post(
         .webp({ quality: 85 })
         .toBuffer();
 
-      imagekit.upload(
-        {
-          file: optimizedImageBuffer,
-          fileName: Date.now() + ".webp",
-          folder: "admin_uploads",
-        },
-        (err, result) => {
-          if (err) {
-            console.error("ImageKit Error:", err);
-            return res.status(500).json({
-              success: false,
-              message: "Image upload failed",
-              error: err.message,
-            });
+      const result = await new Promise((resolve, reject) => {
+        imagekit.upload(
+          {
+            file: optimizedImageBuffer,
+            fileName: Date.now() + ".webp",
+            folder: "admin_uploads",
+          },
+          (err, result) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
           }
+        );
+      });
 
-          return res.json({
-            success: true,
-            message: "Image uploaded successfully",
-            filePath: result.url,
-          });
-        }
-      );
+      return res.json({
+        success: true,
+        message: "Image uploaded successfully",
+        filePath: result.url,
+      });
     } catch (error) {
       console.error("Upload Error:", error);
       res.status(500).json({
         success: false,
-        message: "Server error",
+        message: "Image upload failed",
         error: error.message,
       });
     }
