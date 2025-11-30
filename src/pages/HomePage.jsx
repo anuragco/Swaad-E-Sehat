@@ -242,19 +242,19 @@ const HomePage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <TestimonialCard
-              quote="The quality of dry fruits is exceptional. Fresh, natural, and exactly as described. Highly recommended!"
+              quote="The quality of the Muscle Ladoo is exceptional. Fresh, natural, and exactly as described. Highly recommended!"
               author="Priya Sharma"
               location="Delhi"
               initials="PS"
             />
             <TestimonialCard
-              quote="The khajur pak is absolutely delicious! It reminds me of my grandmother's recipe. Will definitely order again."
+              quote="The Channa Ladoo is absolutely delicious! It tastes just like a homemade traditional recipe. Will definitely order again."
               author="Rajesh Kumar"
               location="Mumbai"
               initials="RK"
             />
             <TestimonialCard
-              quote="Fast delivery and excellent packaging. The products arrived fresh and the taste is authentic. Great service!"
+              quote="Fast delivery and excellent packaging. The Chocolate Energy Bar arrived fresh and the taste is truly authentic. Great service!"
               author="Anita Singh"
               location="Bangalore"
               initials="AS"
