@@ -162,7 +162,7 @@ const WishlistItem = ({ product, onAddToCart, onRemove }) => {
   
   // Get price from selected variant, or fall back to normalized price
   const variantPrice = selectedVariant?.price;
-  const variantOriginalPrice = selectedVariant?.originalPrice || variantPrice;
+  const variantOriginalPrice = selectedVariant?.originalPrice ?? variantPrice;
   const { price: normalizedPrice, originalPrice: normalizedOriginalPrice } = normalizeProductPrice(product);
   
   const price = variantPrice ?? normalizedPrice;
@@ -255,7 +255,7 @@ const WishlistItem = ({ product, onAddToCart, onRemove }) => {
                 >
                   <span className="font-medium">{variant.name}</span>
                   <span className="text-slate-600 ml-1.5">₹{variant.price}</span>
-                  {variant.originalPrice > variant.price && (
+                  {variant.originalPrice != null && variant.originalPrice > variant.price && (
                     <span className="text-slate-400 line-through ml-1">₹{variant.originalPrice}</span>
                   )}
                 </button>
