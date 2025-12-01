@@ -606,7 +606,12 @@ const OrderSummary = ({ items, subtotal, shippingCost, total, isProcessing, paym
           <img src={item.image} alt={item.name} className="w-16 h-16 rounded-md object-cover" />
           <div className="flex-1">
             <h4 className="font-medium text-slate-800 line-clamp-1">{item.name}</h4>
-            <p className="text-sm text-slate-500">Qty: {item.quantity}</p>
+            <p className="text-sm text-slate-500">
+              {item.variantName && item.variantName !== 'Default' && (
+                <span className="text-slate-600">{item.variantName} · </span>
+              )}
+              Qty: {item.quantity}
+            </p>
           </div>
           <span className="font-semibold text-slate-800">₹{(item.price * item.quantity).toFixed(2)}</span>
         </div>
