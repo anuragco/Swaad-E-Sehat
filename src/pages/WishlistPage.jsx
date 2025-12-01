@@ -154,10 +154,23 @@ const WishlistPage = () => {
 // --- Helper Component for each Wishlist Item ---
 const WishlistItem = ({ product, onAddToCart, onRemove }) => {
   const [quantity, setQuantity] = useState(1);
-  const { price, originalPrice, hasDiscount } = normalizeProductPrice(product);
   
-  // Basic stock check
-  const currentStock = product.stock || 0;
+  // Initialize selectedVariant with the first variant or null
+  const [selectedVariant, setSelectedVariant] = useState(
+    product.variants?.[0] || null
+  );
+  
+  // Get price from selected variant, or fall back to normalized price
+  const variantPrice = selectedVariant?.price;
+  const variantOriginalPrice = selectedVariant?.originalPrice ?? variantPrice;
+  const { price: normalizedPrice, originalPrice: normalizedOriginalPrice } = normalizeProductPrice(product);
+  
+  const price = variantPrice ?? normalizedPrice;
+  const originalPrice = variantOriginalPrice ?? normalizedOriginalPrice;
+  const hasDiscount = originalPrice > price;
+  
+  // Get stock from selected variant or product level
+  const currentStock = selectedVariant?.stock ?? product.stock ?? 0;
   const isOutOfStock = currentStock === 0;
 
   const handleQuantityChange = (delta) => {
@@ -168,14 +181,21 @@ const WishlistItem = ({ product, onAddToCart, onRemove }) => {
     });
   };
 
+  const handleVariantChange = (variant) => {
+    setSelectedVariant(variant);
+    setQuantity(1); // Reset quantity when variant changes
+  };
+
   const handleAddToCartWithQuantity = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    // Pass product with normalized price data for cart
+    // Pass product with selected variant data for cart
     const productForCart = {
       ...product,
       price: price,
       originalPrice: originalPrice,
+      variant: selectedVariant?.variant_id_str || selectedVariant?.id || 'default',
+      variantName: selectedVariant?.name || null,
     };
     onAddToCart(e, productForCart, quantity);
   };
@@ -214,6 +234,34 @@ const WishlistItem = ({ product, onAddToCart, onRemove }) => {
           <p className="text-sm text-slate-500 mb-4 line-clamp-2">
             {product.description}
           </p>
+        )}
+
+        {/* Variant Selection (Size/Weight Options) */}
+        {product.variants && product.variants.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-slate-700 mb-2">
+              Select Size: <span className="font-semibold text-slate-800">{selectedVariant?.name || 'N/A'}</span>
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {product.variants.map((variant, index) => (
+                <button
+                  key={variant.id || index}
+                  className={`px-3 py-1.5 rounded-md border text-sm transition-all ${
+                    selectedVariant?.id === variant.id
+                      ? 'bg-amber-100 border-amber-500 ring-1 ring-amber-500 text-slate-800'
+                      : 'bg-white border-slate-300 hover:border-slate-500 text-slate-700'
+                  }`}
+                  onClick={() => handleVariantChange(variant)}
+                >
+                  <span className="font-medium">{variant.name}</span>
+                  <span className="text-slate-600 ml-1.5">₹{variant.price}</span>
+                  {variant.originalPrice != null && variant.originalPrice > variant.price && (
+                    <span className="text-slate-400 line-through ml-1">₹{variant.originalPrice}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Pricing */}
