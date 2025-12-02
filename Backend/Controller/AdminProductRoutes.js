@@ -102,10 +102,53 @@ router.put("/api/admin/products/:id", async (req, res) => {
   const { id } = req.params;
   const { product, variants } = req.body;
   let connection;
+  
   try {
+    // Validation: Check if required data exists
+    if (!product) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Product data is required",
+        error: "Missing 'product' in request body"
+      });
+    }
+
+    if (!variants || !Array.isArray(variants)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Variants array is required",
+        error: "Missing or invalid 'variants' in request body"
+      });
+    }
+
+    // Validation: Check if product ID is valid
+    if (!id || isNaN(id)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid product ID",
+        error: `Product ID '${id}' is not a valid number`
+      });
+    }
+
     connection = await pool.getConnection();
     await connection.beginTransaction();
 
+    // Check if product exists
+    const [existingProduct] = await connection.query(
+      "SELECT id FROM products WHERE id = ?", 
+      [id]
+    );
+    
+    if (!existingProduct || existingProduct.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ 
+        success: false, 
+        message: "Product not found",
+        error: `No product exists with ID: ${id}`
+      });
+    }
+
+    // Update product
     const productQuery = `
       UPDATE products SET 
       name = ?, slug = ?, detailedDescription = ?, category = ?, subcategory = ?, rating = ?, 
@@ -114,34 +157,124 @@ router.put("/api/admin/products/:id", async (req, res) => {
       storageInstructions = ?, tags = ?, status = ?
       WHERE id = ?
     `;
-    await connection.query(productQuery, [
-      product.name, product.slug, product.detailedDescription, product.category, product.subcategory,
-      product.rating, product.reviews, product.isNew, product.isBestSeller, product.isFeatured,
-      product.stock, JSON.stringify(product.images), JSON.stringify(product.ingredients),
-      JSON.stringify(product.benefits), JSON.stringify(product.nutritionalInfo), product.shelfLife,
-      product.storageInstructions, JSON.stringify(product.tags), product.status, id
+    
+    const [updateResult] = await connection.query(productQuery, [
+      product.name, 
+      product.slug, 
+      product.detailedDescription, 
+      product.category, 
+      product.subcategory,
+      product.rating, 
+      product.reviews, 
+      product.isNew, 
+      product.isBestSeller, 
+      product.isFeatured,
+      product.stock, 
+      JSON.stringify(product.images || []), 
+      JSON.stringify(product.ingredients || []),
+      JSON.stringify(product.benefits || []), 
+      JSON.stringify(product.nutritionalInfo || {}), 
+      product.shelfLife,
+      product.storageInstructions, 
+      JSON.stringify(product.tags || []), 
+      product.status, 
+      id
     ]);
 
+    // Check if update actually modified any rows
+    if (updateResult.affectedRows === 0) {
+      await connection.rollback();
+      return res.status(400).json({ 
+        success: false, 
+        message: "Product update failed",
+        error: "No rows were updated. Product may not exist or data is identical."
+      });
+    }
+
+    // Delete old variants
     await connection.query("DELETE FROM product_variants WHERE product_id = ?", [id]);
 
-    for (const variant of variants) {
+    // Insert new variants with validation
+    if (variants.length === 0) {
+      await connection.rollback();
+      return res.status(400).json({ 
+        success: false, 
+        message: "At least one variant is required",
+        error: "Variants array cannot be empty"
+      });
+    }
+
+    for (let i = 0; i < variants.length; i++) {
+      const variant = variants[i];
+      
+      // Validate each variant has required fields
+      if (!variant.variant_id_str || !variant.name) {
+        await connection.rollback();
+        return res.status(400).json({ 
+          success: false, 
+          message: `Invalid variant at index ${i}`,
+          error: `Variant must have 'variant_id_str' and 'name'. Received: ${JSON.stringify(variant)}`
+        });
+      }
+
       const variantQuery = `
         INSERT INTO product_variants (product_id, variant_id_str, name, price, originalPrice, stock, weight)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `;
-      await connection.query(variantQuery, [
-        id, variant.variant_id_str, variant.name, variant.price,
-        variant.originalPrice, variant.stock, variant.weight
-      ]);
+      
+      try {
+        await connection.query(variantQuery, [
+          id, 
+          variant.variant_id_str, 
+          variant.name, 
+          variant.price || 0,
+          variant.originalPrice || 0, 
+          variant.stock || 0, 
+          variant.weight || null
+        ]);
+      } catch (variantErr) {
+        await connection.rollback();
+        return res.status(500).json({ 
+          success: false, 
+          message: `Failed to insert variant at index ${i}`,
+          error: variantErr.message,
+          variant: variant
+        });
+      }
     }
 
     await connection.commit();
-    res.json({ success: true, message: "Product updated successfully" });
+    res.json({ 
+      success: true, 
+      message: "Product updated successfully",
+      productId: id,
+      variantsUpdated: variants.length
+    });
 
   } catch (err) {
-    if (connection) await connection.rollback();
-    console.error("Error updating product:", err);
-    res.status(500).json({ success: false, message: "Failed to update product", error: err.message });
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackErr) {
+        console.error("Rollback error:", rollbackErr);
+      }
+    }
+    
+    console.error("Error updating product:", {
+      productId: id,
+      error: err.message,
+      stack: err.stack,
+      body: req.body
+    });
+    
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to update product", 
+      error: err.message,
+      details: err.sqlMessage || "Internal server error",
+      productId: id
+    });
+    
   } finally {
     if (connection) connection.release();
   }

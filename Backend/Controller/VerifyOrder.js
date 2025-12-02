@@ -186,7 +186,7 @@ const itemsList = itemRows.map(item =>
       orderDate: new Date(order.created_at).toLocaleDateString('en-IN'),
       totalAmount: order.total_amount,
       items: itemsList,
-      shippingAddress: `${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state} - ${order.shipping_pincode}`
+      shippingAddress: `${order.address}, ${order.city}, ${order.state} - ${order.pincode}`
     }
   });
 
