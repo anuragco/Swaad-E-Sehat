@@ -12,6 +12,7 @@ router.get("/api/dashboard", userDashAuth, async (req, res) => {
         const [
             [userInfoRows], 
             [ordersRows], 
+            [orderItemsRows],
             [addressesRows]
         ] = await Promise.all([
             // User Info Query
@@ -25,10 +26,27 @@ router.get("/api/dashboard", userDashAuth, async (req, res) => {
             pool.query(
                 `SELECT id, total_amount, payment_method, order_status, created_at 
                  FROM orders 
-                 WHERE user_id = ? AND payment_status = 'paid' 
+                 WHERE user_id = ? AND payment_status = 'paid' AND order_status = 'processed'
                  ORDER BY created_at DESC`,
                 [userId]
             ),
+            //ordered details
+           pool.query(
+                        `
+                        SELECT id, product_name, price, quantity, variant
+                        FROM order_items
+                        WHERE order_id IN (
+                            SELECT id 
+                            FROM orders
+                            WHERE user_id = ?
+                                AND payment_status = 'paid'
+                                AND order_status = 'processed'
+                            ORDER BY created_at DESC
+                        )
+                        `,
+                        [userId]
+                        ),
+
             
             // Unique Addresses Query
             pool.query(
@@ -47,6 +65,7 @@ router.get("/api/dashboard", userDashAuth, async (req, res) => {
             data: {
                 user: userInfoRows[0] || null,
                 orders: ordersRows,
+                orderItems: orderItemsRows,
                 addresses: addressesRows
             }
         });

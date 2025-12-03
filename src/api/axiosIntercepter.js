@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = `https://api.swaadesehat.in`; 
+const API_BASE_URL = `http://localhost:5000`; 
 
 if (!API_BASE_URL) {
   throw new Error('API_BASE_URL is not defined. Please check your .env file.');
@@ -24,9 +24,6 @@ ClientApiInstance.interceptors.request.use(
   }
 );
 
-// Login page path constant to avoid hard-coded string comparisons
-const LOGIN_PATH = '/account';
-
 ClientApiInstance.interceptors.response.use(
   (response) => {
     return response;
@@ -35,19 +32,10 @@ ClientApiInstance.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       console.error("Unauthorized! Logging out...");
       
-      // Only redirect if not already on the login page to prevent loops
-      // Using startsWith to handle query parameters or trailing slashes
-      if (!window.location.pathname.startsWith(LOGIN_PATH)) {
-        // Clear all auth-related data from localStorage
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        
-        // Set flag to prevent login page from auto-redirecting back
-        sessionStorage.setItem('session_expired', 'true');
-        
-        // Redirect to login page
-        window.location.href = LOGIN_PATH; 
-      }
+      localStorage.removeItem('authToken');
+      sessionStorage.removeItem('user');
+      
+      window.location.href = '/account'; 
     }
     return Promise.reject(error);
   }
