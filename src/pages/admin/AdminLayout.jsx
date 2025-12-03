@@ -1,16 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { FiBox, FiClipboard, FiUsers, FiSettings, FiLogOut, FiMenu, FiX, FiHome, FiTrendingUp, FiShoppingBag } from 'react-icons/fi';
 import { Candy, Sparkles, Package, Star, Heart, Zap } from 'lucide-react';
+import ClientApiInstance from '../../api/axiosIntercepter';
+import { toast } from 'react-toastify';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalOrders: 0,
+    totalUsers: 0,
+    totalRevenue: 0
+  });
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+
+  const fetchStats = async () => {
+    try {
+      const response = await ClientApiInstance.get('/api/admin/stats');
+      if (response.data.success) {
+        setStats(response.data.data);
+      }
+    } catch (err) {
+      toast.error("Failed to fetch stats.");
+      console.error(err);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     navigate('/');
+  };
+
+  const formatRevenue = (revenue) => {
+    if (!revenue) return '₹0';
+    return `₹${revenue.toLocaleString('en-IN')}`;
+  };
+
+  const formatCount = (count) => {
+    if (!count) return '0';
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}k`;
+    }
+    return count.toString();
   };
 
   return (
@@ -82,40 +122,48 @@ const AdminLayout = () => {
               </div>
 
               {/* Enhanced Stats Dashboard */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <StatCard 
-                  icon={<Package />} 
-                  label="Total Products" 
-                  value="248" 
-                  change="+12%" 
-                  color="from-pink-500 to-rose-500"
-                  bgColor="from-pink-50 to-rose-50"
-                />
-                <StatCard 
-                  icon={<FiClipboard />} 
-                  label="Active Orders" 
-                  value="89" 
-                  change="+23%" 
-                  color="from-purple-500 to-pink-500"
-                  bgColor="from-purple-50 to-pink-50"
-                />
-                <StatCard 
-                  icon={<FiUsers />} 
-                  label="Happy Customers" 
-                  value="1,234" 
-                  change="+8%" 
-                  color="from-amber-500 to-orange-500"
-                  bgColor="from-amber-50 to-orange-50"
-                />
-                <StatCard 
-                  icon={<FiTrendingUp />} 
-                  label="Today's Revenue" 
-                  value="₹45,890" 
-                  change="+15%" 
-                  color="from-green-500 to-emerald-500"
-                  bgColor="from-green-50 to-emerald-50"
-                />
-              </div>
+              {isLoadingStats ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="bg-slate-100 rounded-2xl p-5 animate-pulse">
+                      <div className="h-12 bg-slate-200 rounded-xl mb-3"></div>
+                      <div className="h-8 bg-slate-200 rounded mb-2"></div>
+                      <div className="h-4 bg-slate-200 rounded w-2/3"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <StatCard 
+                    icon={<Package />} 
+                    label="Total Products" 
+                    value={stats.totalProducts} 
+                    color="from-pink-500 to-rose-500"
+                    bgColor="from-pink-50 to-rose-50"
+                  />
+                  <StatCard 
+                    icon={<FiClipboard />} 
+                    label="Active Orders" 
+                    value={stats.totalOrders} 
+                    color="from-purple-500 to-pink-500"
+                    bgColor="from-purple-50 to-pink-50"
+                  />
+                  <StatCard 
+                    icon={<FiUsers />} 
+                    label="Happy Customers" 
+                    value={formatCount(stats.totalUsers)} 
+                    color="from-amber-500 to-orange-500"
+                    bgColor="from-amber-50 to-orange-50"
+                  />
+                  <StatCard 
+                    icon={<FiTrendingUp />} 
+                    label="Total Revenue" 
+                    value={formatRevenue(stats.totalRevenue)} 
+                    color="from-green-500 to-emerald-500"
+                    bgColor="from-green-50 to-emerald-50"
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -133,13 +181,13 @@ const AdminLayout = () => {
                 </div>
                 
                 <ul className="space-y-2">
-                  <AdminNavItem to="/admin/products" icon={<FiBox />} badge="248">
+                  <AdminNavItem to="/admin/products" icon={<FiBox />} badge={stats.totalProducts}>
                     Products
                   </AdminNavItem>
-                  <AdminNavItem to="/admin/orders" icon={<FiClipboard />} badge="89" highlight>
+                  <AdminNavItem to="/admin/orders" icon={<FiClipboard />} badge={stats.totalOrders} highlight>
                     Orders
                   </AdminNavItem>
-                  <AdminNavItem to="/admin/users" icon={<FiUsers />} badge="1.2k">
+                  <AdminNavItem to="/admin/users" icon={<FiUsers />} badge={formatCount(stats.totalUsers)}>
                     Customers
                   </AdminNavItem>
                   
@@ -213,13 +261,13 @@ const AdminLayout = () => {
                   </button>
                   
                   <ul className="space-y-2">
-                    <AdminNavItem to="/admin/products" icon={<FiBox />} badge="248">
+                    <AdminNavItem to="/admin/products" icon={<FiBox />} badge={stats.totalProducts}>
                       Products
                     </AdminNavItem>
-                    <AdminNavItem to="/admin/orders" icon={<FiClipboard />} badge="89" highlight>
+                    <AdminNavItem to="/admin/orders" icon={<FiClipboard />} badge={stats.totalOrders} highlight>
                       Orders
                     </AdminNavItem>
-                    <AdminNavItem to="/admin/users" icon={<FiUsers />} badge="1.2k">
+                    <AdminNavItem to="/admin/users" icon={<FiUsers />} badge={formatCount(stats.totalUsers)}>
                       Customers
                     </AdminNavItem>
                     
@@ -326,7 +374,7 @@ const AdminNavItem = ({ to, icon, children, badge, highlight }) => (
   </li>
 );
 
-const StatCard = ({ icon, label, value, change, color, bgColor }) => {
+const StatCard = ({ icon, label, value, color, bgColor }) => {
   return (
     <div className={`relative bg-gradient-to-br ${bgColor} rounded-2xl shadow-lg p-5 border border-white/60 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group overflow-hidden`}>
       {/* Animated Background Gradient */}
@@ -337,9 +385,6 @@ const StatCard = ({ icon, label, value, change, color, bgColor }) => {
           <div className={`p-3 rounded-xl bg-gradient-to-br ${color} shadow-lg group-hover:scale-110 transition-transform`}>
             {React.cloneElement(icon, { className: 'w-6 h-6 text-white' })}
           </div>
-          <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded-full">
-            {change}
-          </span>
         </div>
         <p className="text-3xl font-black text-slate-800 mb-1">{value}</p>
         <p className="text-xs text-slate-600 font-bold uppercase tracking-wide">{label}</p>
@@ -347,4 +392,5 @@ const StatCard = ({ icon, label, value, change, color, bgColor }) => {
     </div>
   );
 };
+
 export default AdminLayout;

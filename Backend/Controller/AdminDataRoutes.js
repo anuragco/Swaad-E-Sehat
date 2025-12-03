@@ -63,4 +63,37 @@ router.get("/api/admin/users", async (req, res) => {
   }
 });
 
+router.get("/api/admin/stats", async (req, res) => {
+  try {
+    const [[{ totalUsers }]] = await pool.query(`
+      SELECT COUNT(*) AS totalUsers FROM users
+    `);
+    const [[{ totalOrders }]] = await pool.query(`
+      SELECT COUNT(*) AS totalOrders FROM orders WHERE payment_status = 'paid' OR payment_status = 'cod_pending'
+    `);
+    const [[{ totalRevenue }]] = await pool.query(`
+      SELECT SUM(total_amount) AS totalRevenue 
+      FROM orders 
+      WHERE payment_status = 'paid'
+    `);
+    const [[{totalProducts}]] = await pool.query(`
+      SELECT COUNT(*) AS totalProducts FROM products
+    `);
+
+    res.json({ 
+      success: true, 
+      data: {
+        totalUsers,
+        totalOrders,
+        totalRevenue,
+        totalProducts
+      }
+    });
+  } catch (err) {
+    console.error("Error fetching admin stats:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+
+});
+
 module.exports = router;
