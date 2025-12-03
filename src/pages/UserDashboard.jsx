@@ -22,6 +22,7 @@ const UserDashboard = () => {
   const [addresses, setAddresses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [orderItems, setOrderItems] = useState([]); // State to hold items
   
   const [activeModal, setActiveModal] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -39,19 +40,18 @@ const UserDashboard = () => {
           setUser(data.user);
           setOrders(data.orders);
           setAddresses(data.addresses || []);
+          setOrderItems(data.orderItems || []);
         } else {
           toast.error(response.data.message || "Failed to fetch dashboard data.");
         }
       } catch (err) {
         console.error("Dashboard API Error:", err);
-        // 401 is handled by axios interceptor, only handle 403 here
         if (err.response && err.response.status === 403) {
           toast.error("Access forbidden.");
           localStorage.removeItem('authToken');
           localStorage.removeItem('user');
           navigate('/account');
         } else if (err.response?.status !== 401) {
-          // Only show error toast for non-401 errors since 401 redirects via interceptor
           toast.error("An error occurred while fetching your data.");
         }
       } finally {
@@ -79,9 +79,21 @@ const UserDashboard = () => {
     checkAdminRole();
   }, [navigate]);
 
+  // --- THIS IS THE FIX ---
+  // We attach items and address to the order before opening the modal
   const openModal = (modalType, data = null) => {
     setActiveModal(modalType);
-    if (modalType === 'orderDetail') setSelectedOrder(data);
+    
+    if (modalType === 'orderDetail' && data) {
+      const fullOrderData = {
+        ...data,
+        items: orderItems, // Pass the items fetched from API
+       shippingAddress: addresses.length > 0 
+          ? { ...addresses[0], name: user?.name } 
+          : { name: user?.name } // Pass the first address
+      };
+      setSelectedOrder(fullOrderData);
+    }
   };
 
   const closeModal = () => {
@@ -148,6 +160,7 @@ const UserDashboard = () => {
   
   const getStatusColor = (status) => {
     const colors = {
+      'processed': 'bg-blue-100 text-blue-800',
       'Delivered': 'bg-green-100 text-green-800',
       'Processing': 'bg-blue-100 text-blue-800',
       'Shipped': 'bg-purple-100 text-purple-800',
@@ -380,53 +393,98 @@ const OrdersModal = ({ orders, onClose, onViewOrder, getStatusColor }) => (
   </Modal>
 );
 
-const OrderDetailModal = ({ order, onClose, getStatusColor }) => (
-  <Modal onClose={onClose} title={`Order ${order.id}`}>
-    <div className="space-y-6">
-      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
-        <div>
-          <p className="text-xs text-slate-600">Order Date</p>
-          <p className="font-semibold text-slate-900 mt-1">{new Date(order.created_at).toLocaleDateString()}</p>
-        </div>
-        <span className={`px-4 py-2 text-sm font-semibold rounded-full ${getStatusColor(order.order_status)}`}>
-          {order.order_status}
-        </span>
-      </div>
+const OrderDetailModal = ({ order, onClose, getStatusColor }) => {
+  // 1. Calculate values
+  const totalAmount = parseFloat(order.total_amount);
+  
+  // Logic: If total > 1100, free, else 79
+  const deliveryCharge = totalAmount > 1100 ? 0 : 79;
+  
+  // Calculate Item Subtotal (Sum of all items * quantity)
+  const itemSubtotal = order.items 
+    ? order.items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0)
+    : 0;
 
-      <div className="border-t border-slate-200 pt-4">
-        <div className="space-y-3">
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-600">Subtotal</span>
-            <span className="font-semibold text-slate-900">₹{order.subtotal || order.total_amount}</span>
+  return (
+    <Modal onClose={onClose} title={`Order ${order.id}`}>
+      <div className="space-y-6">
+        {/* Order Status Header */}
+        <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+          <div>
+            <p className="text-xs text-slate-600">Order Date</p>
+            <p className="font-semibold text-slate-900 mt-1">{new Date(order.created_at).toLocaleDateString()}</p>
           </div>
-          <div className="flex justify-between pt-3 border-t border-slate-200">
-            <span className="font-semibold text-slate-900">Total</span>
-            <span className="text-lg font-bold text-slate-900">₹{order.total_amount}</span>
-          </div>
+          <span className={`px-4 py-2 text-sm font-semibold rounded-full ${getStatusColor(order.order_status)}`}>
+            {order.order_status}
+          </span>
         </div>
-      </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-          <h4 className="font-semibold text-slate-900 mb-3 text-sm">Shipping Address</h4>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            {order.cust_first_name} {order.cust_last_name}<br />
-            {order.address}<br />
-            {order.city}, {order.state} {order.pincode}
-          </p>
+        {/* Order Items */}
+        <div className="border-t border-slate-200 pt-4">
+          <h3 className="text-xl font-bold text-slate-900 mb-4">Items in this Order</h3>
+          <div className="space-y-3">
+            {order.items && order.items.length > 0 ? order.items.map((item, index) => (
+              <div key={index} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
+                <div className="text-slate-900">
+                  <p className="font-semibold">{item.product_name}</p>
+                  <p className="text-xs text-slate-500">{item.variant} x {item.quantity}</p>
+                </div>
+                <span className="font-semibold text-slate-900">₹{parseFloat(item.price).toFixed(2)}</span>
+              </div>
+            )) : (
+              <p className="text-slate-500 text-sm">No items found for this order.</p>
+            )}
+          </div>
         </div>
-        <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-          <h4 className="font-semibold text-slate-900 mb-3 text-sm">Payment Method</h4>
-          <p className="text-sm text-slate-600">
-            {order.payment_method}
-            <br className="mt-2" />
-            Status: <span className="font-semibold text-slate-900">{order.payment_status}</span>
-          </p>
+        
+        {/* Order Summary & Delivery Logic */}
+        <div className="border-t border-slate-200 pt-4">
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Item Subtotal</span>
+              <span className="font-semibold text-slate-900">₹{itemSubtotal.toFixed(2)}</span> 
+            </div>
+
+            {/* Delivery Charge Row */}
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Delivery Charge</span>
+              <span className={`font-semibold ${deliveryCharge === 0 ? 'text-green-600' : 'text-slate-900'}`}>
+                {deliveryCharge === 0 ? 'Free' : `₹${deliveryCharge.toFixed(2)}`}
+              </span> 
+            </div>
+
+            <div className="flex justify-between pt-3 border-t border-slate-200">
+              <span className="font-semibold text-slate-900">Total Amount</span>
+              <span className="text-lg font-bold text-slate-900">₹{totalAmount.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Shipping Address */}
+          <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <h4 className="font-semibold text-slate-900 mb-3 text-sm">Shipping Address</h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {/* FIXED: Uses name injected from UserDashboard */}
+              <span className="font-semibold text-slate-800">{order.shippingAddress?.name || 'User'}</span> <br />
+              {order.shippingAddress?.address || 'Address info not available'}<br />
+              {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.pincode}
+            </p>
+          </div>
+          {/* Payment Method */}
+          <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <h4 className="font-semibold text-slate-900 mb-3 text-sm">Payment Method</h4>
+            <p className="text-sm text-slate-600">
+              {order.payment_method}
+              <br className="mt-2" />
+              Status: <span className="font-semibold text-slate-900">paid</span>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-  </Modal>
-);
+    </Modal>
+  );
+};
 
 const ProfileModal = ({ user, onClose, editing, setEditing, onSubmit }) => (
   <Modal onClose={onClose} title="My Profile" size="max-w-2xl">

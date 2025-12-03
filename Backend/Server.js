@@ -70,6 +70,15 @@ app.get("/", (req, res) => {
     console.log("The solution is: ", results[0].solution);
   });
 });
+app.post("/api/my/webhook", (req, res) => {
+  // res.send("Hello World!");
+  console.log("Payment gateway hit, body:", req.body);
+
+  // pool.query("SELECT 1 + 1 AS solution", (error, results) => {
+  //   if (error) throw error;
+  //   console.log("The solution is: ", results[0].solution);
+  // });
+});
 
 app.use("/auth", authRoutes);
 app.use("/checkout", checkoutRoutes);

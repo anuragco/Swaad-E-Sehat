@@ -25,6 +25,13 @@ function parseDevCrafterResponse(apiResponse) {
   throw new Error("Unrecognized API response format");
 }
 
+async function UpdateProduct_order_status (orderId) {
+  await pool.query(
+    "UPDATE orders SET order_status = 'processed', updated_at = NOW() WHERE id = ?",
+    [orderId]
+  );
+}
+
 function mapPaymentStatus(gatewayStatus) {
   const statusMap = {
     'SUCCESS': 'paid',
@@ -89,6 +96,7 @@ router.get('/verify-order/:orderId', userDashAuth, async (req, res) => {
       // Decrease stock for paid orders
       try {
         await decreaseStockForOrder(orderId);
+        await UpdateProduct_order_status(orderId);
         console.log(`✅ Stock decreased for order ${orderId}`);
       } catch (stockError) {
         console.error(`❌ Stock decrease failed for order ${orderId}:`, stockError.message);
@@ -201,7 +209,7 @@ const itemsList = itemRows.map(item =>
       totalAmount: order.total_amount,
       orderDate: new Date(order.created_at).toLocaleString('en-IN'),
       items: itemsList,
-      shippingAddress: `${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state} - ${order.shipping_pincode}`
+      shippingAddress: `${order.address}, ${order.city}, ${order.state} - ${order.pincode}`
     }
   });
 }
@@ -232,6 +240,13 @@ async function decreaseStockForOrder(orderId) {
       [item.quantity, item.product_id, item.variant, item.variant]
     );
   }
+}
+
+async function Updateorder_status (orderId) {
+  await pool.query(
+    "UPDATE orders SET order_status = 'processed', updated_at = NOW() WHERE id = ?",
+    [orderId]
+  );
 }
 
 router.get('/payment/callback', async (req, res) => {
@@ -287,6 +302,7 @@ router.get('/payment/callback', async (req, res) => {
       // Decrease stock for paid orders
       try {
         await decreaseStockForOrder(order);
+        await Updateorder_status(order);
         console.log(`✅ Stock decreased for order ${order}`);
       } catch (stockError) {
         console.error(`❌ Stock decrease failed for order ${order}:`, stockError.message);
