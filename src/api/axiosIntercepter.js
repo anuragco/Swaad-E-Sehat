@@ -35,7 +35,7 @@ ClientApiInstance.interceptors.response.use(
       localStorage.removeItem('authToken');
       sessionStorage.removeItem('user');
       
-      window.location.href = '/'; 
+      window.location.href = '/account'; 
     }
     return Promise.reject(error);
   }
