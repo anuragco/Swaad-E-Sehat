@@ -173,7 +173,6 @@ router.post("/api/orders/create", UserDashAuth, createOrderLimiter, async (req, 
       });
     }
 
-    // --- Online Payment (DevCraftor PG) ---
     const response = await fetch("https://connect.devcraftor.in/api/v2/partner/payment_links", {
       method: "POST",
       headers: {
