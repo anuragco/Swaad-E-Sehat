@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useLocation, Link, useSearchParams } from 'react-router-dom';
 import { FiCheckCircle, FiXCircle, FiLoader, FiMail, FiPackage } from 'react-icons/fi';
 // Make sure you import your API instance correctly
 import ClientApiInstance from '../api/axiosIntercepter'; 
