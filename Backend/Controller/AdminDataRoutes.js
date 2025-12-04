@@ -9,7 +9,7 @@ router.get("/api/admin/orders", async (req, res) => {
         id, user_id, total_amount, payment_method, 
         payment_status, order_status, 
         cust_first_name, cust_last_name, created_at 
-      FROM orders
+      FROM orders WHERE payment_status='paid' OR payment_status='cod_pending'
       ORDER BY created_at DESC
     `);
     res.json({ success: true, data: orders });
