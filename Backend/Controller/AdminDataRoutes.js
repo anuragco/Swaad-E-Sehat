@@ -76,7 +76,7 @@ router.get("/api/admin/stats", async (req, res) => {
       FROM orders 
       WHERE payment_status = 'paid'
     `);
-    const [[{totalProducts}]] = await pool.query(`
+    const [[{ totalProducts }]] = await pool.query(`
       SELECT COUNT(*) AS totalProducts FROM products
     `);
 
