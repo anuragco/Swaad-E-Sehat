@@ -114,8 +114,8 @@ const AdminOrderList = () => {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-orange-50 rounded-3xl shadow-lg p-8 border border-white/60">
-        <div className="flex items-center justify-between mb-6">
+      {/* <div className="bg-gradient-to-br from-pink-50 via-purple-50 to-orange-50 rounded-3xl shadow-lg p-8 border border-white/60"> */}
+        {/* <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="bg-gradient-to-br from-pink-500 to-orange-500 p-4 rounded-2xl shadow-lg">
               <ShoppingBag className="w-8 h-8 text-white" />
@@ -131,10 +131,10 @@ const AdminOrderList = () => {
             <FiDownload className="w-5 h-5" />
             Export
           </button>
-        </div>
+        </div> */}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatMiniCard 
             icon={<FiPackage />} 
             label="Total Orders" 
@@ -159,8 +159,8 @@ const AdminOrderList = () => {
             value={stats.delivered} 
             color="from-green-500 to-emerald-500" 
           />
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
 
       {/* Filters Section */}
       <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-6 border border-white/60">
