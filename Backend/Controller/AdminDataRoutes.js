@@ -69,7 +69,7 @@ router.get("/api/admin/stats", async (req, res) => {
       SELECT COUNT(*) AS totalUsers FROM users
     `);
     const [[{ totalOrders }]] = await pool.query(`
-      SELECT COUNT(*) AS totalOrders FROM orders WHERE payment_status = 'paid' OR payment_status = 'cod_pending'
+      SELECT COUNT(*) AS totalOrders FROM orders WHERE payment_status IN ('paid', 'cod_pending')
     `);
     const [[{ totalRevenue }]] = await pool.query(`
       SELECT SUM(total_amount) AS totalRevenue 
