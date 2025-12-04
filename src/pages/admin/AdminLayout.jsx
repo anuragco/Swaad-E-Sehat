@@ -137,14 +137,14 @@ const AdminLayout = () => {
                   <StatCard 
                     icon={<Package />} 
                     label="Total Products" 
-                    value={stats.totalProducts} 
+                    value={formatCount(stats.totalProducts)} 
                     color="from-pink-500 to-rose-500"
                     bgColor="from-pink-50 to-rose-50"
                   />
                   <StatCard 
                     icon={<FiClipboard />} 
                     label="Active Orders" 
-                    value={stats.totalOrders} 
+                    value={formatCount(stats.totalOrders)} 
                     color="from-purple-500 to-pink-500"
                     bgColor="from-purple-50 to-pink-50"
                   />
