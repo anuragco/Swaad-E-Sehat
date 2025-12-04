@@ -196,7 +196,7 @@ const AdminOrderList = () => {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg overflow-hidden border border-white/60 ">
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg overflow-hidden border border-white/60">
         {filteredOrders.length === 0 ? (
           <div className="text-center py-16">
             <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
