@@ -8,7 +8,7 @@ router.get("/api/admin/orders", async (req, res) => {
       SELECT 
         id, user_id, total_amount, payment_method, 
         payment_status, order_status, 
-        cust_first_name, cust_last_name, created_at 
+        cust_first_name, cust_last_name, created_at
       FROM orders
       ORDER BY created_at DESC
     `);

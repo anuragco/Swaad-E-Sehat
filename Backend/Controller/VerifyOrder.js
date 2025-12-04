@@ -250,34 +250,36 @@ async function Updateorder_status (orderId) {
 }
 
 router.get('/payment/callback', async (req, res) => {
-  const { order, source, timestamp } = req.query;
-  
+  const { status, orderId } = req.query;
+
+  const FRONTEND_URL = process.env.FRONTEND_URL || "https://swaadesehat.in";
+
   try {
-    if (!order) {
-      return res.redirect(`${process.env.FRONTEND_URL}/order-confirmation?error=missing_order`);
+    console.log(`🔄 Payment Redirect received: Order ${orderId}, Status ${status}`);
+
+    if (!orderId) {
+      return res.redirect(`${FRONTEND_URL}/order-confirmation?status=failed&error=missing_id`);
     }
 
-    // Check if order already processed
-    const [orderCheck] = await pool.query(
-      "SELECT id, payment_status FROM orders WHERE id = ?",
-      [order]
-    );
-    
-    if (orderCheck.length === 0) {
-      return res.redirect(`${process.env.FRONTEND_URL}/order-confirmation?error=order_not_found`);
-    }
-    
-    // If already paid, just redirect without reprocessing
-    if (orderCheck[0].payment_status === 'paid') {
-      return res.redirect(`${process.env.FRONTEND_URL}/order-confirmation?orderId=${order}&status=success`);
+    if (status === 'TIMEOUT' || status === 'FAILURE' || status === 'FAILED') {
+      await pool.query(
+        "UPDATE orders SET payment_status = 'failed', updated_at = NOW() WHERE id = ?",
+        [orderId]
+      );
+      return res.redirect(`${FRONTEND_URL}/order-confirmation?orderId=${orderId}&status=failed`);
     }
 
-    // Verify the payment status with the gateway
+   
+    const [orderCheck] = await pool.query("SELECT payment_status FROM orders WHERE id = ?", [orderId]);
+    if (orderCheck.length > 0 && orderCheck[0].payment_status === 'paid') {
+       return res.redirect(`${FRONTEND_URL}/order-confirmation?orderId=${orderId}&status=success`);
+    }
+
     const devRes = await axios.post(
       "https://connect.devcraftor.in/api/v2/partner/order/status",
       {
         token: process.env.DEVCRAFTER_TOKEN,
-        orderId: order
+        orderId: orderId
       },
       {
         headers: {
@@ -289,49 +291,36 @@ router.get('/payment/callback', async (req, res) => {
       }
     );
 
-    const parsedResponse = parseDevCrafterResponse(devRes.data);
-    const newStatus = mapPaymentStatus(parsedResponse.status);
+    const parsedResponse = parseDevCrafterResponse(devRes.data); 
+    const verifiedStatus = mapPaymentStatus(parsedResponse.status); 
 
-    // Update order status
     await pool.query(
       "UPDATE orders SET payment_status = ?, updated_at = NOW() WHERE id = ?",
-      [newStatus, order]
+      [verifiedStatus, orderId]
     );
 
-    if (newStatus === 'paid') {
-      // Decrease stock for paid orders
+    if (verifiedStatus === 'paid') {
+      // Decrease Stock
       try {
-        await decreaseStockForOrder(order);
-        await Updateorder_status(order);
-        console.log(`✅ Stock decreased for order ${order}`);
-      } catch (stockError) {
-        console.error(`❌ Stock decrease failed for order ${order}:`, stockError.message);
-      }
+        await decreaseStockForOrder(orderId); 
+      } catch (e) { console.error("Stock error", e.message); }
 
-      // Send confirmation emails
+      // Send Emails
       try {
-        await sendOrderConfirmationEmails(order);
-        console.log(`✅ Confirmation emails sent for order ${order}`);
-      } catch (emailError) {
-        console.error(`❌ Email failed for order ${order}:`, emailError.message);
-      }
+        await sendOrderConfirmationEmails(orderId); 
+      } catch (e) { console.error("Email error", e.message); }
 
-      // Redirect to success page
-      return res.redirect(`${process.env.FRONTEND_URL}/order-confirmation?orderId=${order}&status=success`);
-    } else if (newStatus === 'failed' || newStatus === 'cancelled') {
-      return res.redirect(`${process.env.FRONTEND_URL}/order-confirmation?orderId=${order}&status=failed`);
-    } else {
-      return res.redirect(`${process.env.FRONTEND_URL}/order-confirmation?orderId=${order}&status=pending`);
+      // REDIRECT TO FRONTEND SUCCESS PAGE
+      return res.redirect(`${FRONTEND_URL}/order-confirmation?orderId=${orderId}&status=success`);
+    } 
+    else {
+      // Payment verified as Pending or Failed
+      return res.redirect(`${FRONTEND_URL}/order-confirmation?orderId=${orderId}&status=failed`);
     }
 
   } catch (err) {
-    console.error("Payment callback error:", {
-      orderId: order,
-      error: err.message,
-      apiResponse: err.response?.data
-    });
-    
-    return res.redirect(`${process.env.FRONTEND_URL}/order-confirmation?error=verification_failed`);
+    console.error("Callback Error:", err.message);
+    return res.redirect(`${FRONTEND_URL}/order-confirmation?orderId=${orderId}&status=pending`);
   }
 });
 
