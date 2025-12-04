@@ -65,28 +65,21 @@ router.get("/api/admin/users", async (req, res) => {
 
 router.get("/api/admin/stats", async (req, res) => {
   try {
-    const [[{ totalUsers }]] = await pool.query(`
-      SELECT COUNT(*) AS totalUsers FROM users
-    `);
-    const [[{ totalOrders }]] = await pool.query(`
-      SELECT COUNT(*) AS totalOrders FROM orders WHERE payment_status IN ('paid', 'cod_pending')
-    `);
-    const [[{ totalRevenue }]] = await pool.query(`
-      SELECT SUM(total_amount) AS totalRevenue 
-      FROM orders 
-      WHERE payment_status = 'paid'
-    `);
-    const [[{ totalProducts }]] = await pool.query(`
-      SELECT COUNT(*) AS totalProducts FROM products
+    const [[stats]] = await pool.query(`
+      SELECT 
+        (SELECT COUNT(*) FROM users) AS totalUsers,
+        (SELECT COUNT(*) FROM orders WHERE payment_status IN ('paid', 'cod_pending')) AS totalOrders,
+        (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE payment_status = 'paid') AS totalRevenue,
+        (SELECT COUNT(*) FROM products) AS totalProducts
     `);
 
     res.json({ 
       success: true, 
       data: {
-        totalUsers,
-        totalOrders,
-        totalRevenue,
-        totalProducts
+        totalUsers: stats.totalUsers,
+        totalOrders: stats.totalOrders,
+        totalRevenue: stats.totalRevenue,
+        totalProducts: stats.totalProducts
       }
     });
   } catch (err) {
