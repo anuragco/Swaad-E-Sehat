@@ -41,7 +41,7 @@ const AdminLayout = () => {
   };
 
   const formatRevenue = (revenue) => {
-    if (!revenue) return '₹0';
+    if (revenue === null || revenue === undefined) return '₹0';
     return `₹${revenue.toLocaleString('en-IN')}`;
   };
 
