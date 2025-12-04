@@ -93,7 +93,6 @@ router.get("/api/admin/stats", async (req, res) => {
     console.error("Error fetching admin stats:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
-
 });
 
 module.exports = router;
